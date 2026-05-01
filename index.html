@@ -219,9 +219,45 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 58, 237, 0.15) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 40% at 80% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 58, 237, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 10% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
     pointer-events: none;
+  }
+
+  /* Animated orbs */
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .hero-orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12), transparent 70%);
+    top: -100px; left: -100px;
+    animation-delay: 0s;
+  }
+  .hero-orb-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(6,182,212,0.1), transparent 70%);
+    top: 50%; right: -50px;
+    animation-delay: -3s;
+    animation-duration: 10s;
+  }
+  .hero-orb-3 {
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(168,85,247,0.1), transparent 70%);
+    bottom: -50px; left: 40%;
+    animation-delay: -5s;
+    animation-duration: 12s;
+  }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(20px,-20px) scale(1.05); }
+    66% { transform: translate(-15px,15px) scale(0.95); }
   }
 
   .hero-inner {
@@ -836,6 +872,8 @@
     transition: opacity 0.25s;
   }
 
+  .cat-card:hover { transform: translateY(-4px); border-color: rgba(124,58,237,0.4); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .cat-card:active { transform: translateY(-1px) scale(0.98); }
   .cat-card:hover::before { opacity: 1; }
   .cat-action::before { background: linear-gradient(135deg, rgba(239,68,68,0.15), transparent); }
   .cat-racing::before { background: linear-gradient(135deg, rgba(245,158,11,0.15), transparent); }
@@ -1006,6 +1044,46 @@
     font-size: 0.72rem;
     color: var(--text-muted);
   }
+
+  /* ─── SCROLL HINT ─────────────────────────────────────────── */
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    text-decoration: none;
+    animation: scrollHintBounce 2s ease-in-out infinite;
+    z-index: 2;
+  }
+  .scroll-mouse {
+    width: 22px; height: 34px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 11px;
+    display: flex;
+    justify-content: center;
+    padding-top: 5px;
+  }
+  .scroll-wheel {
+    width: 4px; height: 6px;
+    background: rgba(168,85,247,0.8);
+    border-radius: 2px;
+    animation: scrollWheel 2s ease-in-out infinite;
+  }
+  @keyframes scrollWheel {
+    0% { transform: translateY(0); opacity: 1; }
+    60% { transform: translateY(8px); opacity: 0.3; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes scrollHintBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+  }
+  @media (max-width: 600px) { .hero-scroll-hint { display: none; } }
 
   /* ─── ACTIVITY TICKER ─────────────────────────────────────── */
   .ticker-strip {
@@ -1579,6 +1657,9 @@
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
   <div class="hero-inner">
     <div class="hero-content">
       <div class="hero-badge">
@@ -1651,6 +1732,10 @@
       </a>
     </div>
   </div>
+  <!-- Scroll hint -->
+  <a href="#categories" class="hero-scroll-hint" aria-label="Scroll down">
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+  </a>
 </section>
 
 <!-- AdSense: Leaderboard 728x90 -->
@@ -2190,42 +2275,42 @@
     </div>
 
     <div class="cat-grid">
-      <div class="cat-card cat-action">
+      <div class="cat-card cat-action" onclick="filterFromDrawer('action')" role="button" tabindex="0">
         <span class="cat-emoji">💥</span>
         <div class="cat-name" data-i18n="cat_action_label">أكشن</div>
         <div class="cat-count" data-i18n="cat_action_count">85 لعبة</div>
       </div>
-      <div class="cat-card cat-racing">
+      <div class="cat-card cat-racing" onclick="filterFromDrawer('racing')" role="button" tabindex="0">
         <span class="cat-emoji">🏎️</span>
         <div class="cat-name" data-i18n="cat_racing_label">سباقات</div>
         <div class="cat-count" data-i18n="cat_racing_count">62 لعبة</div>
       </div>
-      <div class="cat-card cat-puzzle">
+      <div class="cat-card cat-puzzle" onclick="filterFromDrawer('puzzles')" role="button" tabindex="0">
         <span class="cat-emoji">🧩</span>
         <div class="cat-name" data-i18n="cat_puzzle_label">ألغاز</div>
         <div class="cat-count" data-i18n="cat_puzzle_count">110 لعبة</div>
       </div>
-      <div class="cat-card cat-sports">
+      <div class="cat-card cat-sports" onclick="filterFromDrawer('sports')" role="button" tabindex="0">
         <span class="cat-emoji">⚽</span>
         <div class="cat-name" data-i18n="cat_sports_label">رياضة</div>
         <div class="cat-count" data-i18n="cat_sports_count">74 لعبة</div>
       </div>
-      <div class="cat-card cat-kids">
+      <div class="cat-card cat-kids" onclick="filterFromDrawer('kids')" role="button" tabindex="0">
         <span class="cat-emoji">🧸</span>
         <div class="cat-name" data-i18n="cat_kids_label">أطفال</div>
         <div class="cat-count" data-i18n="cat_kids_count">48 لعبة</div>
       </div>
-      <div class="cat-card cat-arcade">
+      <div class="cat-card cat-arcade" onclick="filterFromDrawer('arcade')" role="button" tabindex="0">
         <span class="cat-emoji">👾</span>
         <div class="cat-name" data-i18n="cat_arcade_label">أركيد</div>
         <div class="cat-count" data-i18n="cat_arcade_count">93 لعبة</div>
       </div>
-      <div class="cat-card cat-multi">
+      <div class="cat-card cat-multi" onclick="filterFromDrawer('multi')" role="button" tabindex="0">
         <span class="cat-emoji">👥</span>
         <div class="cat-name" data-i18n="cat_multi_label">متعدد اللاعبين</div>
         <div class="cat-count" data-i18n="cat_multi_count">31 لعبة</div>
       </div>
-      <div class="cat-card cat-strategy">
+      <div class="cat-card cat-strategy" onclick="filterFromDrawer('strategy')" role="button" tabindex="0">
         <span class="cat-emoji">♟️</span>
         <div class="cat-name" data-i18n="cat_strategy_label">استراتيجية</div>
         <div class="cat-count" data-i18n="cat_strategy_count">55 لعبة</div>
@@ -2612,15 +2697,22 @@
     });
   });
 
-  function filterFromDrawer(cat) {
-    closeDrawer();
-    setTimeout(() => {
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      const btn = document.querySelector(`.cat-btn[data-cat="${cat}"]`);
-      if (btn) btn.classList.add('active');
-      filterGames(cat);
-      document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
-    }, 350);
+  function filterFromDrawer(cat, fromDrawer = false) {
+    const drawerOpen = document.getElementById('mobile-drawer')?.classList.contains('open');
+    if (drawerOpen) {
+      closeDrawer();
+      setTimeout(() => _applyFilter(cat), 350);
+    } else {
+      _applyFilter(cat);
+    }
+  }
+  function _applyFilter(cat) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.cat-btn[data-cat="${cat}"]`);
+    if (btn) btn.classList.add('active');
+    filterGames(cat);
+    document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
+    showToast(currentLang === 'ar' ? `🎮 تصفية: ${btn?.textContent?.replace(/[^a-zA-Z؀-ۿ ]/g,'').trim() || cat}` : `🎮 Filtered: ${cat}`, 'default', 2000);
   }
 
   // ── LIVE SEARCH ─────────────────────────────────────────────
