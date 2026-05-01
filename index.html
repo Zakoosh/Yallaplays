@@ -973,12 +973,283 @@
   .post-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; }
   .community-join-btn { background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.08)); border: 1px solid rgba(124,58,237,0.3); border-radius: 14px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; text-decoration: none; color: var(--text-primary); transition: all 0.25s; }
   .community-join-btn:hover { border-color: var(--accent); background: rgba(124,58,237,0.2); transform: translateY(-2px); }
+
+  /* ── PAGE LOADER ─────────────────────────────────────────── */
+  #page-loader {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg-deep);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  #page-loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-logo { font-size: 3rem; animation: loaderPulse 1s ease-in-out infinite; }
+  .loader-spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent-bright);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  .loader-text { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.1em; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes loaderPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+  /* ── MOBILE HAMBURGER ────────────────────────────────────── */
+  .hamburger {
+    display: none; flex-direction: column; justify-content: center; gap: 5px;
+    width: 40px; height: 40px; cursor: pointer; padding: 8px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg-elevated);
+    flex-shrink: 0; transition: border-color 0.2s;
+  }
+  .hamburger:hover { border-color: var(--accent); }
+  .hamburger span {
+    display: block; width: 100%; height: 2px;
+    background: var(--text-secondary); border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── MOBILE DRAWER ───────────────────────────────────────── */
+  #mobile-drawer {
+    position: fixed; top: 0; right: -100%; width: min(320px, 85vw); height: 100vh;
+    background: var(--bg-card); border-left: 1px solid var(--border);
+    z-index: 200; display: flex; flex-direction: column;
+    transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto; padding-bottom: 80px;
+  }
+  [dir="ltr"] #mobile-drawer { right: auto; left: -100%; border-left: none; border-right: 1px solid var(--border); transition: left 0.35s cubic-bezier(0.4,0,0.2,1); }
+  #mobile-drawer.open { right: 0; }
+  [dir="ltr"] #mobile-drawer.open { left: 0; }
+  .drawer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.25rem 1rem; border-bottom: 1px solid var(--border);
+  }
+  .drawer-close {
+    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-elevated); color: var(--text-secondary);
+    font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .drawer-close:hover { border-color: var(--accent); color: var(--accent-bright); }
+  .drawer-search {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin: 1rem 1.25rem; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 0.9rem;
+  }
+  .drawer-search input {
+    background: none; border: none; outline: none;
+    color: var(--text-primary); font-family: var(--font-ar); font-size: 0.9rem; width: 100%;
+    direction: rtl;
+  }
+  [dir="ltr"] .drawer-search input { direction: ltr; }
+  .drawer-nav { display: flex; flex-direction: column; padding: 0 0.75rem; gap: 0.25rem; }
+  .drawer-nav a {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem 0.75rem; border-radius: 10px;
+    color: var(--text-secondary); text-decoration: none; font-size: 0.92rem; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .drawer-nav a:hover, .drawer-nav a.active {
+    background: rgba(124,58,237,0.12); color: var(--accent-bright);
+  }
+  .drawer-nav .nav-icon { font-size: 1.1rem; width: 28px; text-align: center; }
+  .drawer-divider { height: 1px; background: var(--border); margin: 0.5rem 1.25rem; }
+  .drawer-cats { padding: 0 0.75rem 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .drawer-cats .cat-pill {
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    color: var(--text-secondary); border-radius: 50px; padding: 0.35rem 0.85rem;
+    font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .drawer-cats .cat-pill:hover { border-color: var(--accent); color: var(--accent-bright); }
+
+  /* ── DRAWER OVERLAY ──────────────────────────────────────── */
+  #drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 199; opacity: 0; visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s; backdrop-filter: blur(4px);
+  }
+  #drawer-overlay.show { opacity: 1; visibility: visible; }
+
+  /* ── MOBILE BOTTOM NAV ───────────────────────────────────── */
+  #bottom-nav {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0;
+    height: 62px; z-index: 150;
+    background: rgba(14,14,31,0.97);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .bottom-nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 8px 4px; cursor: pointer; text-decoration: none;
+    color: var(--text-muted); font-size: 0.62rem; font-weight: 700;
+    transition: color 0.2s; position: relative; letter-spacing: 0.02em;
+  }
+  .bottom-nav-item .nav-emoji { font-size: 1.3rem; line-height: 1; }
+  .bottom-nav-item.active, .bottom-nav-item:hover { color: var(--accent-bright); }
+  .bottom-nav-item.active::before {
+    content: ''; position: absolute; top: 0; left: 25%; right: 25%;
+    height: 2px; background: var(--accent-bright); border-radius: 0 0 4px 4px;
+  }
+
+  /* ── BACK TO TOP ─────────────────────────────────────────── */
+  #back-to-top {
+    position: fixed; bottom: 80px; left: 1.5rem; z-index: 100;
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--accent); border: none; color: white;
+    font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 20px var(--accent-glow);
+    opacity: 0; visibility: hidden; transform: translateY(12px);
+    transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
+  }
+  #back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+  #back-to-top:hover { background: var(--accent-bright); transform: translateY(-2px); }
+
+  /* ── TOAST ───────────────────────────────────────────────── */
+  #toast-container {
+    position: fixed; bottom: 80px; right: 1.5rem; z-index: 300;
+    display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 12px; padding: 0.75rem 1.1rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    animation: toastIn 0.35s ease both;
+    pointer-events: auto; max-width: 280px;
+  }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+  @keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform:translateX(0); } }
+  @keyframes toastOut { to { opacity:0; transform: translateX(20px); } }
+
+  /* ── SEARCH LIVE HIGHLIGHT ───────────────────────────────── */
+  .game-card.search-hidden { display: none !important; }
+  .search-no-results {
+    grid-column: 1/-1; text-align: center; padding: 2.5rem 1rem;
+    color: var(--text-muted); font-size: 0.95rem;
+    display: none;
+  }
+  .search-no-results.show { display: block; }
+
+  /* ── GAME CARD CATEGORY GLOW ─────────────────────────────── */
+  .game-card[data-cat~="girls"]:hover { border-color: rgba(219,39,119,0.5); box-shadow: 0 12px 30px rgba(219,39,119,0.12); }
+  .game-card[data-cat~="boys"]:hover { border-color: rgba(37,99,235,0.5); box-shadow: 0 12px 30px rgba(37,99,235,0.12); }
+  .game-card[data-cat~="sports"]:hover { border-color: rgba(16,185,129,0.5); box-shadow: 0 12px 30px rgba(16,185,129,0.12); }
+  .game-card[data-cat~="puzzles"]:hover { border-color: rgba(168,85,247,0.5); box-shadow: 0 12px 30px rgba(168,85,247,0.12); }
+
+  /* ── STAGGERED CARD ANIMATION ────────────────────────────── */
+  .game-card { opacity: 0; transform: translateY(18px); transition: opacity 0.45s ease, transform 0.45s ease, border-color 0.25s, box-shadow 0.25s; }
+  .game-card.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── LIVE SEARCH BAR GLOW ────────────────────────────────── */
+  .search-bar.active {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow) !important;
+  }
+
+  /* ── COMMUNITY NAV BADGE ─────────────────────────────────── */
+  .nav-community-badge {
+    background: var(--accent); color: white; border-radius: 50px;
+    font-size: 0.6rem; font-weight: 900; padding: 0.1rem 0.4rem;
+    vertical-align: middle; margin-right: 0.2rem;
+  }
+
+  /* ── RESPONSIVE SHOW/HIDE ────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hamburger { display: flex; }
+    nav { display: none !important; }
+    .search-bar { display: none; }
+    #bottom-nav { display: grid; }
+    .main { padding-bottom: 80px; }
+    footer { padding-bottom: calc(80px + 1.5rem); }
+    #back-to-top { bottom: 74px; }
+    #toast-container { bottom: 74px; }
+  }
 </style>
 
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <div class="loader-logo">🎮</div>
+  <div class="loader-spinner"></div>
+  <div class="loader-text">YallaPlay</div>
+</div>
+
+<!-- DRAWER OVERLAY -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- MOBILE DRAWER -->
+<div id="mobile-drawer">
+  <div class="drawer-header">
+    <a href="/" class="logo">
+      <div class="logo-icon">🎮</div>
+      <span class="logo-text">YallaPlay</span>
+    </a>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-search">
+    <span>🔍</span>
+    <input type="text" id="drawer-search-input" placeholder="ابحث عن لعبة...">
+  </div>
+  <nav class="drawer-nav">
+    <a href="index.html" class="active">
+      <span class="nav-icon">🏠</span> <span>الرئيسية</span>
+    </a>
+    <a href="#games" onclick="closeDrawer()">
+      <span class="nav-icon">🎮</span> <span>الألعاب</span>
+    </a>
+    <a href="community.html">
+      <span class="nav-icon">💬</span> <span>المجتمع</span>
+    </a>
+  </nav>
+  <div class="drawer-divider"></div>
+  <div style="padding: 0.5rem 1.25rem; font-size:0.75rem; color:var(--text-muted); font-weight:700;">التصنيفات</div>
+  <div class="drawer-cats">
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('all')">🎮 الكل</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('action')">💥 أكشن</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('racing')">🏎️ سباقات</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('puzzles')">🧩 ألغاز</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('sports')">⚽ رياضة</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('kids')">🧸 أطفال</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('girls')">👧 بنات</a>
+    <a href="#games" class="cat-pill" onclick="filterFromDrawer('boys')">👦 أولاد</a>
+  </div>
+</div>
+
+<!-- BACK TO TOP -->
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="للأعلى">↑</button>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="bottom-nav">
+  <a href="index.html" class="bottom-nav-item active">
+    <span class="nav-emoji">🏠</span>
+    <span>الرئيسية</span>
+  </a>
+  <a href="#games" class="bottom-nav-item" onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'});return false;">
+    <span class="nav-emoji">🎮</span>
+    <span>الألعاب</span>
+  </a>
+  <a href="community.html" class="bottom-nav-item">
+    <span class="nav-emoji">💬</span>
+    <span>المجتمع</span>
+  </a>
+  <a href="#" class="bottom-nav-item" onclick="openMobileSearch();return false;">
+    <span class="nav-emoji">🔍</span>
+    <span>بحث</span>
+  </a>
+</nav>
 
 <!-- HEADER -->
 <header>
@@ -989,22 +1260,25 @@
     </a>
 
     <nav>
-      <a href="#" class="active" data-i18n="nav_home">الرئيسية</a>
+      <a href="index.html" class="active" data-i18n="nav_home">الرئيسية</a>
       <a href="#games" data-i18n="nav_games">الألعاب</a>
       <a href="#" data-i18n="nav_action">أكشن</a>
       <a href="#" data-i18n="nav_racing">سباقات</a>
       <a href="#" data-i18n="nav_puzzles">ألغاز</a>
       <a href="#" data-i18n="nav_sports">رياضة</a>
-      <a href="#" data-i18n="nav_multiplayer">متعدد اللاعبين</a>
+      <a href="community.html">💬 المجتمع <span class="nav-community-badge">NEW</span></a>
     </nav>
 
     <div class="header-actions">
-      <div class="search-bar">
+      <div class="search-bar" id="desktop-search-bar">
         <span class="search-icon">🔍</span>
         <input type="text" id="search-input" data-i18n-placeholder="search_placeholder" placeholder="ابحث عن لعبة...">
       </div>
       <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
       <button class="btn-play-now" onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})" data-i18n="btn_play_now">العب الآن</button>
+      <button class="hamburger" id="hamburger-btn" onclick="openDrawer()" aria-label="القائمة">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
@@ -1214,7 +1488,7 @@
       <a href="#" class="see-all" data-i18n="see_all">عرض الكل ←</a>
     </div>
 
-    <div class="games-grid">
+    <div class="games-grid" id="games-grid">
       <!-- Snake -->
       <a href="games/snake.html" class="game-card" data-cat="action">
         <div class="game-thumb">
@@ -1934,21 +2208,179 @@
   // Apply on load
   applyLang(currentLang);
 
-  // Category filter
+  // ── PAGE LOADER ────────────────────────────────────────────
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('page-loader').classList.add('hidden');
+    }, 600);
+  });
+
+  // ── CATEGORY FILTER ────────────────────────────────────────
+  function filterGames(cat) {
+    document.querySelectorAll('.game-card').forEach(card => {
+      if (cat === 'all') { card.classList.remove('search-hidden'); return; }
+      const cardCats = (card.dataset.cat || '').split(' ');
+      card.classList.toggle('search-hidden', !cardCats.includes(cat));
+    });
+    checkNoResults();
+  }
+
   document.querySelectorAll('.cat-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      const cat = this.dataset.cat || 'all';
-      document.querySelectorAll('.game-card').forEach(card => {
-        if (cat === 'all') { card.style.display = ''; return; }
-        const cardCats = (card.dataset.cat || '').split(' ');
-        card.style.display = cardCats.includes(cat) ? '' : 'none';
-      });
+      filterGames(this.dataset.cat || 'all');
+      // clear search
+      document.getElementById('search-input').value = '';
+      document.getElementById('drawer-search-input').value = '';
     });
   });
 
-  // Load community preview
+  function filterFromDrawer(cat) {
+    closeDrawer();
+    setTimeout(() => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.querySelector(`.cat-btn[data-cat="${cat}"]`);
+      if (btn) btn.classList.add('active');
+      filterGames(cat);
+      document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
+    }, 350);
+  }
+
+  // ── LIVE SEARCH ─────────────────────────────────────────────
+  function doSearch(q) {
+    q = q.trim().toLowerCase();
+    const searchBar = document.getElementById('desktop-search-bar');
+    if (searchBar) searchBar.classList.toggle('active', q.length > 0);
+
+    document.querySelectorAll('.game-card').forEach(card => {
+      const title = (card.querySelector('.game-title')?.textContent || '').toLowerCase();
+      const cat = (card.dataset.cat || '').toLowerCase();
+      const match = !q || title.includes(q) || cat.includes(q);
+      card.classList.toggle('search-hidden', !match);
+    });
+    checkNoResults();
+    if (q) {
+      // reset category buttons
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.cat-btn[data-cat="all"]')?.classList.add('active');
+    }
+  }
+
+  function checkNoResults() {
+    const grid = document.getElementById('games-grid');
+    if (!grid) return;
+    const visible = [...grid.querySelectorAll('.game-card')].filter(c => !c.classList.contains('search-hidden'));
+    let noRes = grid.querySelector('.search-no-results');
+    if (!noRes) {
+      noRes = document.createElement('div');
+      noRes.className = 'search-no-results';
+      noRes.textContent = currentLang === 'ar' ? 'لا توجد ألعاب تطابق بحثك 🎮' : 'No games found 🎮';
+      grid.appendChild(noRes);
+    }
+    noRes.className = 'search-no-results' + (visible.length === 0 ? ' show' : '');
+  }
+
+  document.getElementById('search-input').addEventListener('input', e => {
+    doSearch(e.target.value);
+    document.getElementById('drawer-search-input').value = e.target.value;
+  });
+  document.getElementById('drawer-search-input').addEventListener('input', e => {
+    doSearch(e.target.value);
+    document.getElementById('search-input').value = e.target.value;
+    document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  function openMobileSearch() {
+    openDrawer();
+    setTimeout(() => document.getElementById('drawer-search-input').focus(), 380);
+  }
+
+  // ── MOBILE DRAWER ───────────────────────────────────────────
+  function openDrawer() {
+    document.getElementById('mobile-drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('show');
+    document.getElementById('hamburger-btn').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    document.getElementById('mobile-drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('show');
+    document.getElementById('hamburger-btn').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ── BACK TO TOP ─────────────────────────────────────────────
+  const bttBtn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    bttBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+
+  // ── TOAST SYSTEM ────────────────────────────────────────────
+  function showToast(msg, type = 'default', duration = 3000) {
+    const tc = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    tc.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'toastOut 0.35s ease both';
+      setTimeout(() => toast.remove(), 350);
+    }, duration);
+  }
+
+  // ── STAGGERED CARD ENTRANCE ─────────────────────────────────
+  const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const idx = [...document.querySelectorAll('.game-card')].indexOf(el);
+        setTimeout(() => el.classList.add('visible'), (idx % 6) * 60);
+        cardObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.game-card').forEach(el => cardObserver.observe(el));
+
+  // Animate trending/category cards on scroll (existing behavior preserved)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'fadeInDown 0.4s ease both';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.trending-card, .cat-card').forEach(el => observer.observe(el));
+
+  // ── ANIMATED STATS COUNTER ──────────────────────────────────
+  function animateCount(el, target, suffix = '') {
+    let start = 0;
+    const step = target / 40;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { el.textContent = target + suffix; clearInterval(timer); return; }
+      el.textContent = Math.floor(start) + suffix;
+    }, 30);
+  }
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        statsObserver.unobserve(entry.target);
+        const nums = entry.target.querySelectorAll('.stat-num');
+        nums.forEach(n => {
+          const raw = n.textContent.replace(/[^0-9]/g, '');
+          const suffix = n.textContent.replace(/[0-9]/g, '');
+          if (raw) animateCount(n, parseInt(raw), suffix);
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+  const heroStats = document.querySelector('.hero-stats');
+  if (heroStats) statsObserver.observe(heroStats);
+
+  // ── COMMUNITY PREVIEW ───────────────────────────────────────
   function loadCommunityPreview() {
     const posts = JSON.parse(localStorage.getItem('yp_community_posts') || '[]');
     const container = document.getElementById('community-preview-posts');
@@ -1970,20 +2402,6 @@
     `).join('');
   }
   loadCommunityPreview();
-
-  // Animate cards on scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.animation = 'fadeInDown 0.4s ease both';
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.game-card, .trending-card, .cat-card').forEach(el => {
-    observer.observe(el);
-  });
 </script>
 
 </body>
