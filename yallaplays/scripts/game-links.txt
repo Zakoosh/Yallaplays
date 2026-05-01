@@ -1,0 +1,12 @@
+# Game links for import-games.js
+# Add one URL per line in format: https://gamedistribution.com/games/game-slug/
+# Example:
+https://gamedistribution.com/games/magic-christmas-tree-match-3/
+https://gamedistribution.com/games/traffic-racing-1/
+https://gamedistribution.com/games/max-speed/
+https://gamedistribution.com/games/i8-city-driver/
+https://gamedistribution.com/games/island-expander/
+https://gamedistribution.com/games/67-clicker/
+https://gamedistribution.com/games/break-a-lucky-egg-brainrots/
+https://gamedistribution.com/games/screw-masters-3d-puzzle/
+https://gamedistribution.com/games/magic-sort/

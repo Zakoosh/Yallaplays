@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="YallaPlay cover">
+  <defs>
+    <linearGradient id="coverGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="30" flood-color="#7c3aed" flood-opacity="0.35" />
+    </filter>
+  </defs>
+  <rect width="1200" height="675" rx="48" fill="#08080f" />
+  <rect width="1200" height="675" rx="48" fill="url(#coverGradient)" opacity="0.18" />
+  <circle cx="220" cy="150" r="90" fill="#ffffff15" />
+  <circle cx="980" cy="520" r="120" fill="#ffffff10" />
+  <path d="M180 500 C250 450 360 520 430 470 C500 420 600 520 680 470 C760 420 840 520 920 470" fill="none" stroke="#7c3aed" stroke-width="8" opacity="0.6" stroke-linecap="round" />
+  <text x="80" y="230" font-family="Inter, sans-serif" font-size="88" fill="#fff" font-weight="800">YallaPlay</text>
+  <text x="80" y="330" font-family="Inter, sans-serif" font-size="42" fill="#d1d5db">ألعاب عربية HTML5</text>
+  <g filter="url(#glow)">
+    <circle cx="920" cy="180" r="60" fill="#06b6d4" opacity="0.85" />
+    <circle cx="890" cy="190" r="12" fill="#fff" />
+    <path d="M900 160 L930 160 L930 190 L960 190 L960 220 L930 220 L930 250 L900 250 L900 220 L870 220 L870 190 L900 190 Z" fill="#fff" opacity="0.8" />
+  </g>
+  <text x="80" y="430" font-family="Inter, sans-serif" font-size="32" fill="#cbd5e1">ألعاب سريعة، تصميم مودرن، أداء ممتاز.</text>
+  <text x="80" y="490" font-family="Inter, sans-serif" font-size="24" fill="#94a3b8">جرب الآن على الجوال والكمبيوتر.</text>
+</svg>

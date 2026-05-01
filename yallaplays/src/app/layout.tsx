@@ -4,9 +4,19 @@ import { LanguageProvider } from '@/contexts/LanguageContext'
 import Header from '@/components/Header'
 
 export const metadata: Metadata = {
-  title: 'YallaPlays - يلا بلاي | Free Browser Games',
-  description: '20 free browser games in Arabic and English with lightweight play, comments, posts, and sharing.',
-  keywords: 'games, browser games, free games, Arabic games, العاب, يلا بلاي, العاب متصفح',
+  title: 'يلا بلاي - أفضل موقع ألعاب عربية HTML5',
+  description: 'العب ألعاب متصفح عربية مجانية بخيارات سريعة وتصميم حديث، مع صفحات ألعاب مفصلة ودعم RTL كامل.',
+  keywords: 'ألعاب متصفح, ألعاب عربية, HTML5, يلا بلاي, ألعاب مجانية, ألعاب جيمينغ',
+  metadataBase: new URL('https://yallaplays.com'),
+  openGraph: {
+    title: 'يلا بلاي - موقع ألعاب عربية',
+    description: 'العب ألعاب متصفح عربية مجانية بخيارات سريعة وتصميم حديث.',
+    type: 'website',
+    url: 'https://yallaplays.com',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default function RootLayout({
@@ -32,8 +42,8 @@ export default function RootLayout({
           </main>
           <footer className="relative z-10 border-t border-white/10 mt-16 py-8 text-center text-text-muted">
             <div className="container mx-auto px-4">
-              <p className="text-sm opacity-70 mb-1">© 2026 YallaPlays | يلا بلاي</p>
-              <p className="text-xs opacity-50">Made with ❤️ for gamers everywhere • صُنع بـ ❤️ للاعبين في كل مكان</p>
+              <p className="text-sm opacity-70 mb-1">© 2026 يلا بلاي | YallaPlays</p>
+              <p className="text-xs opacity-50">صُنع بـ ❤️ للاعبين في كل مكان</p>
             </div>
           </footer>
         </LanguageProvider>
