@@ -128,6 +128,22 @@
   /* ── TOAST ───────────────────────── */
   #toast{position:fixed;bottom:80px;right:1.5rem;z-index:300;background:var(--bg-elevated);border:1px solid var(--green);border-radius:12px;padding:0.7rem 1rem;font-size:0.85rem;font-weight:600;color:var(--green);box-shadow:0 8px 25px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.3s;pointer-events:none;}
   #toast.show{opacity:1;}
+
+  /* ── SORT BAR ───────────────────── */
+  .sort-bar { display:flex; gap:0.4rem; margin-bottom:0.75rem; }
+  .sort-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); padding:0.3rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:var(--font-ar); }
+  .sort-btn.active, .sort-btn:hover { background:rgba(124,58,237,0.15); border-color:var(--accent); color:var(--accent-bright); }
+
+  /* ── CHAR COUNT PROGRESS ─────────── */
+  .char-progress { height:3px; border-radius:2px; background:var(--border); margin-top:0.4rem; overflow:hidden; }
+  .char-progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-bright)); transition:width 0.2s; border-radius:2px; }
+
+  /* ── POST CARD HOVER GLOW ─────────── */
+  .post-card:hover { box-shadow:0 4px 20px rgba(124,58,237,0.12); }
+
+  /* ── LIKE ANIMATION ──────────────── */
+  @keyframes likePop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+  .like-pop { animation: likePop 0.3s ease; }
 </style>
 </head>
 <body>
@@ -164,6 +180,7 @@
     <div class="post-creator">
       <h3 id="creator-title">شارك تجربتك</h3>
       <textarea id="post-text" maxlength="280" placeholder="شارك رأيك أو تجربتك مع الألعاب..."></textarea>
+      <div class="char-progress"><div class="char-progress-fill" id="char-progress-fill" style="width:0%"></div></div>
       <div class="creator-footer">
         <div class="emoji-picker">
           <button onclick="pickEmoji('🎮')">🎮</button>
@@ -185,6 +202,11 @@
     <div class="feed-header">
       <h2 id="feed-title">المنشورات الأخيرة</h2>
       <input type="text" class="search-input" id="search-posts" placeholder="ابحث في المنشورات..." oninput="filterPosts(this.value)">
+    </div>
+    <!-- Sort bar -->
+    <div class="sort-bar">
+      <button class="sort-btn active" id="sort-new-btn" onclick="setSortMode('new')">🕐 الأحدث</button>
+      <button class="sort-btn" id="sort-top-btn" onclick="setSortMode('top')">❤️ الأكثر إعجاباً</button>
     </div>
 
     <!-- Posts Feed -->
@@ -261,7 +283,7 @@
 </main>
 
 <footer>
-  <span id="footer-copy">© 2025 YallaPlay · جميع الحقوق محفوظة</span>
+  <span id="footer-copy">© 2026 YallaPlay · جميع الحقوق محفوظة</span>
 </footer>
 
 <script>
@@ -285,7 +307,7 @@ const i18n = {
     stat_games: 'ألعاب متاحة',
     name_ph: 'اسمك (اختياري)',
     text_ph: 'شارك رأيك أو تجربتك مع الألعاب...',
-    footer_copy: '© 2025 YallaPlay · جميع الحقوق محفوظة',
+    footer_copy: '© 2026 YallaPlay · جميع الحقوق محفوظة',
     like_btn: '❤️',
     share_btn: '📤 مشاركة',
     unknown: 'لاعب مجهول',
@@ -309,7 +331,7 @@ const i18n = {
     stat_games: 'Available Games',
     name_ph: 'Your name (optional)',
     text_ph: 'Share your thoughts about games...',
-    footer_copy: '© 2025 YallaPlay · All Rights Reserved',
+    footer_copy: '© 2026 YallaPlay · All Rights Reserved',
     like_btn: '❤️',
     share_btn: '📤 Share',
     unknown: 'Anonymous',
@@ -366,6 +388,12 @@ document.getElementById('post-text').addEventListener('input', updateCharCount);
 function updateCharCount() {
   const len = document.getElementById('post-text').value.length;
   document.getElementById('char-count').textContent = len + '/280';
+  const pct = (len / 280) * 100;
+  const fill = document.getElementById('char-progress-fill');
+  if (fill) {
+    fill.style.width = pct + '%';
+    fill.style.background = pct > 90 ? 'linear-gradient(90deg,#ef4444,#f97316)' : 'linear-gradient(90deg,var(--accent),var(--accent-bright))';
+  }
 }
 
 function extractTags(text) {
@@ -423,6 +451,13 @@ function likePost(id) {
     post.likedBy.push(sessionId);
   }
   savePosts(posts);
+  // Animate the like button
+  const likeBtn = document.getElementById('like-btn-' + id);
+  if (likeBtn) {
+    likeBtn.classList.remove('like-pop');
+    void likeBtn.offsetWidth; // reflow
+    likeBtn.classList.add('like-pop');
+  }
   renderPosts(posts);
   updateStats(posts);
 }
@@ -448,6 +483,15 @@ function getSessionId() {
 }
 
 let allPosts = [];
+let sortMode = 'new';
+
+function setSortMode(mode) {
+  sortMode = mode;
+  document.getElementById('sort-new-btn')?.classList.toggle('active', mode === 'new');
+  document.getElementById('sort-top-btn')?.classList.toggle('active', mode === 'top');
+  renderPosts(loadPosts());
+}
+
 function renderPosts(posts) {
   allPosts = posts;
   const feed = document.getElementById('posts-feed');
@@ -455,16 +499,22 @@ function renderPosts(posts) {
     feed.innerHTML = `<div class="empty-state"><span class="empty-icon">🎮</span><div>${i18n[currentLang].empty}</div></div>`;
     return;
   }
-  const sorted = [...posts].reverse();
-  feed.innerHTML = sorted.map(p => renderPost(p)).join('');
+  let sorted = [...posts];
+  if (sortMode === 'top') {
+    sorted.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+  } else {
+    sorted.reverse();
+  }
+  feed.innerHTML = sorted.map((p, i) => renderPost(p, i)).join('');
 }
 
-function renderPost(p) {
+function renderPost(p, idx = 0) {
   const tags = extractTags(p.text);
   const sessionId = getSessionId();
   const liked = p.likedBy && p.likedBy.includes(sessionId);
+  const delay = Math.min(idx * 50, 400);
   return `
-    <div class="post-card" id="post-${p.id}">
+    <div class="post-card" id="post-${p.id}" style="animation-delay:${delay}ms">
       <div class="post-header">
         <div class="post-avatar-circle">${p.avatar || '🎮'}</div>
         <div class="post-meta">
@@ -472,7 +522,7 @@ function renderPost(p) {
           <div class="post-time">${timeAgo(p.time)}</div>
         </div>
         <div class="post-actions-row">
-          <button onclick="likePost('${p.id}')" class="like-btn" style="${liked ? 'border-color:#ef4444;color:#ef4444' : ''}">❤️ ${p.likes || 0}</button>
+          <button onclick="likePost('${p.id}')" class="like-btn" id="like-btn-${p.id}" style="${liked ? 'border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,0.08)' : ''}">❤️ ${p.likes || 0}</button>
           <button onclick="sharePost(${JSON.stringify(p.text)})" class="share-btn">📤</button>
         </div>
       </div>
