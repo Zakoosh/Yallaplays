@@ -94,9 +94,59 @@
   .disqus-section { margin-top:2rem; }
 
   footer { background:var(--bg-card); border-top:1px solid var(--border); padding:1.25rem 1.5rem; text-align:center; font-size:0.8rem; color:var(--text-muted); }
+
+  /* ── PAGE LOADER ─────────────────── */
+  #page-loader { position:fixed;inset:0;z-index:9999;background:var(--bg-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;transition:opacity 0.5s,visibility 0.5s; }
+  #page-loader.hidden{opacity:0;visibility:hidden;}
+  .loader-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent-bright);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── MOBILE BOTTOM NAV ───────────── */
+  #bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:62px;z-index:150;background:rgba(14,14,31,0.97);border-top:1px solid var(--border);backdrop-filter:blur(20px);grid-template-columns:repeat(3,1fr);}
+  .bottom-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:0.62rem;font-weight:700;transition:color 0.2s;position:relative;letter-spacing:0.02em;}
+  .bottom-nav-item .nav-emoji{font-size:1.3rem;line-height:1;}
+  .bottom-nav-item.active,.bottom-nav-item:hover{color:var(--accent-bright);}
+  .bottom-nav-item.active::before{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--accent-bright);border-radius:0 0 4px 4px;}
+  @media(max-width:768px){#bottom-nav{display:grid;}main{padding-bottom:80px;}footer{padding-bottom:calc(80px + 1rem);}}
+
+  /* ── BACK TO TOP ─────────────────── */
+  #back-to-top{position:fixed;bottom:80px;left:1.5rem;z-index:100;width:42px;height:42px;border-radius:12px;background:var(--accent);border:none;color:white;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);opacity:0;visibility:hidden;transform:translateY(12px);transition:all 0.3s;display:flex;align-items:center;justify-content:center;}
+  #back-to-top.visible{opacity:1;visibility:visible;transform:translateY(0);}
+  #back-to-top:hover{background:var(--accent-bright);transform:translateY(-2px);}
+
+  /* ── POST CARD ENTRANCE ──────────── */
+  .post-card { opacity:0; transform:translateY(12px); animation:cardIn 0.4s ease both; }
+  @keyframes cardIn { to { opacity:1; transform:translateY(0); } }
+
+  /* ── IMPROVED POST AVATAR ────────── */
+  .post-avatar-circle { background: linear-gradient(135deg, var(--accent), var(--cyan)); box-shadow: 0 0 12px var(--accent-glow); }
+
+  /* ── HIGHLIGHT TAGS ──────────────── */
+  .post-body a { color: var(--accent-bright); text-decoration: none; }
+  .post-body a:hover { text-decoration: underline; }
+
+  /* ── TOAST ───────────────────────── */
+  #toast{position:fixed;bottom:80px;right:1.5rem;z-index:300;background:var(--bg-elevated);border:1px solid var(--green);border-radius:12px;padding:0.7rem 1rem;font-size:0.85rem;font-weight:600;color:var(--green);box-shadow:0 8px 25px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.3s;pointer-events:none;}
+  #toast.show{opacity:1;}
 </style>
 </head>
 <body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader"><div style="font-size:2.5rem">💬</div><div class="loader-spinner"></div></div>
+
+<!-- BACK TO TOP -->
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="bottom-nav">
+  <a href="index.html" class="bottom-nav-item"><span class="nav-emoji">🏠</span><span>الرئيسية</span></a>
+  <a href="community.html" class="bottom-nav-item active"><span class="nav-emoji">💬</span><span>المجتمع</span></a>
+  <a href="#games" class="bottom-nav-item" onclick="window.location='index.html#games'"><span class="nav-emoji">🎮</span><span>الألعاب</span></a>
+</nav>
 
 <header>
   <div class="header-inner">
@@ -464,6 +514,53 @@ function updateStats(posts) {
 const initialPosts = loadPosts();
 applyLang(currentLang);
 updateStats(initialPosts);
+
+// Page loader
+window.addEventListener('load', () => setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 500));
+
+// Back to top
+window.addEventListener('scroll', () => {
+  document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 300);
+}, {passive:true});
+
+// Toast helper
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Enhanced share with toast
+const _origShare = sharePost;
+sharePost = function(text) {
+  const shareText = text.substring(0,100) + (text.length>100?'...':'');
+  if (navigator.share) {
+    navigator.share({title:'YallaPlay Community', text:shareText, url:window.location.href});
+  } else {
+    navigator.clipboard.writeText(shareText+'\n'+window.location.href).then(() => {
+      showToast(currentLang==='ar' ? '✅ تم نسخ الرابط!' : '✅ Copied!');
+    });
+  }
+};
+
+// Enhanced submit with toast
+const _origSubmit = submitPost;
+submitPost = function() {
+  const text = document.getElementById('post-text').value.trim();
+  if (!text) return;
+  const name = document.getElementById('post-name').value.trim() || (currentLang === 'ar' ? 'لاعب مجهول' : 'Anonymous');
+  const avatar = avatarOptions[Math.floor(Math.random() * avatarOptions.length)];
+  const post = { id: Date.now().toString(), name, text, avatar, time: Date.now(), likes: 0, likedBy: [] };
+  const posts = loadPosts();
+  posts.push(post);
+  savePosts(posts);
+  document.getElementById('post-text').value = '';
+  document.getElementById('post-name').value = '';
+  updateCharCount();
+  renderPosts(posts);
+  updateStats(posts);
+  showToast(currentLang==='ar' ? '🎮 تم نشر تعليقك!' : '🎮 Post published!');
+};
 </script>
 
 </body>

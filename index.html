@@ -853,21 +853,76 @@
   .cat-count { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
 
   /* FOOTER */
+  /* ─── FOOTER ──────────────────────────────────────────────── */
   footer {
     background: var(--bg-card);
-    border-top: 1px solid var(--border);
-    padding: 3rem 2rem 1.5rem;
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, var(--accent), var(--accent-bright), #06b6d4) 1;
+    padding: 0 0 1.5rem;
     position: relative;
     z-index: 1;
   }
 
-  .footer-inner { max-width: 1400px; margin: 0 auto; }
+  .footer-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+
+  /* Newsletter strip */
+  .footer-newsletter {
+    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.08));
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+  .footer-newsletter-text h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+  .footer-newsletter-text p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+  .footer-newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .footer-newsletter-form input {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.55rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s;
+  }
+  .footer-newsletter-form input:focus { border-color: var(--accent); }
+  .footer-newsletter-form button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .footer-newsletter-form button:hover { opacity: 0.88; }
 
   .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: 3rem;
-    margin-bottom: 2.5rem;
+    margin: 2.5rem 0;
   }
 
   .footer-brand .logo-text { font-size: 1.5rem; }
@@ -881,32 +936,39 @@
 
   .footer-social {
     display: flex;
-    gap: 0.6rem;
+    gap: 0.55rem;
     margin-top: 1.25rem;
+    flex-wrap: wrap;
   }
 
   .social-btn {
-    width: 36px; height: 36px;
+    width: 38px; height: 38px;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
     color: var(--text-secondary);
     text-decoration: none;
   }
-
-  .social-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+  .social-btn svg { width: 17px; height: 17px; fill: currentColor; }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent-bright); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+  .social-btn.tw:hover  { border-color: #1d9bf0; color: #1d9bf0; box-shadow: 0 4px 12px rgba(29,155,240,0.3); }
+  .social-btn.fb:hover  { border-color: #1877f2; color: #1877f2; box-shadow: 0 4px 12px rgba(24,119,242,0.3); }
+  .social-btn.ig:hover  { border-color: #e1306c; color: #e1306c; box-shadow: 0 4px 12px rgba(225,48,108,0.3); }
+  .social-btn.yt:hover  { border-color: #ff0000; color: #ff0000; box-shadow: 0 4px 12px rgba(255,0,0,0.3); }
+  .social-btn.tg:hover  { border-color: #26a5e4; color: #26a5e4; box-shadow: 0 4px 12px rgba(38,165,228,0.3); }
 
   .footer-col h4 {
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 0.88rem;
+    font-weight: 800;
     color: var(--text-primary);
     margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
@@ -915,9 +977,14 @@
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.85rem;
-    transition: color 0.2s;
+    transition: color 0.2s, padding-inline-start 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
   }
-  .footer-col a:hover { color: var(--text-primary); }
+  .footer-col a::before { content: '›'; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+  .footer-col a:hover { color: var(--text-primary); padding-inline-start: 4px; }
+  .footer-col a:hover::before { opacity: 1; }
 
   .footer-bottom {
     border-top: 1px solid var(--border);
@@ -925,8 +992,222 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     font-size: 0.8rem;
     color: var(--text-muted);
+  }
+  .footer-bottom-badges { display: flex; gap: 0.5rem; align-items: center; }
+  .footer-badge {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* ─── ACTIVITY TICKER ─────────────────────────────────────── */
+  .ticker-strip {
+    background: linear-gradient(90deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.55rem 0;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0;
+  }
+  .ticker-strip::before, .ticker-strip::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .ticker-strip::before { left: 0; background: linear-gradient(90deg, var(--bg-deep), transparent); }
+  .ticker-strip::after  { right: 0; background: linear-gradient(-90deg, var(--bg-deep), transparent); }
+  .ticker-inner {
+    display: flex;
+    white-space: nowrap;
+    animation: tickerScroll 30s linear infinite;
+    gap: 0;
+  }
+  .ticker-inner:hover { animation-play-state: paused; }
+  @keyframes tickerScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 1.5rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    border-right: 1px solid var(--border);
+  }
+  [dir="rtl"] .ticker-item { border-right: none; border-left: 1px solid var(--border); }
+  .ticker-item .ticker-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+  }
+  .ticker-item strong { color: var(--accent-bright); }
+
+  /* ─── GAME OF THE DAY ─────────────────────────────────────── */
+  .gotd-section {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto 0.5rem;
+  }
+  .gotd-card {
+    background: linear-gradient(135deg, #0a0a1f 0%, #1a0a2e 40%, #0e1a2e 100%);
+    border: 1px solid rgba(124,58,237,0.35);
+    border-radius: 20px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    min-height: 220px;
+    position: relative;
+  }
+  .gotd-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 70% 50%, rgba(124,58,237,0.18), transparent);
+    pointer-events: none;
+  }
+  .gotd-info {
+    padding: 2rem 2rem 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
+  }
+  [dir="rtl"] .gotd-info { padding: 2rem 2.5rem 2rem 2rem; }
+  .gotd-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    width: fit-content;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .gotd-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .gotd-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 320px;
+  }
+  .gotd-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .gotd-play-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    color: #fff;
+    text-decoration: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 4px 15px rgba(124,58,237,0.4);
+  }
+  .gotd-play-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.55); }
+  .gotd-meta-tag {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+  .gotd-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .gotd-emoji-bg {
+    font-size: 8rem;
+    opacity: 0.15;
+    position: absolute;
+    right: -1rem;
+    transform: rotate(-10deg);
+    animation: floatGotd 4s ease-in-out infinite;
+  }
+  [dir="rtl"] .gotd-emoji-bg { right: auto; left: -1rem; transform: rotate(10deg); }
+  .gotd-emoji-main {
+    font-size: 5rem;
+    position: relative;
+    z-index: 1;
+    animation: floatGotd 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(168,85,247,0.6));
+  }
+  @keyframes floatGotd {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(3deg); }
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(168,85,247,0); }
+  }
+
+  /* ─── CARD BADGES ─────────────────────────────────────────── */
+  .badge-new {
+    position: absolute;
+    top: 8px;
+    inset-inline-start: 8px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 0.18rem 0.5rem;
+    border-radius: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    z-index: 3;
+  }
+  .badge-popular {
+    position: absolute;
+    top: 8px;
+    inset-inline-start: 8px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 0.18rem 0.5rem;
+    border-radius: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    z-index: 3;
   }
 
   /* SCROLLBAR */
@@ -942,6 +1223,10 @@
     .footer-grid { grid-template-columns: 1fr 1fr; }
     nav { display: none; }
     .search-bar { width: 140px; }
+    .gotd-card { grid-template-columns: 1fr; min-height: auto; }
+    .gotd-visual { min-height: 140px; }
+    .gotd-title { font-size: 1.4rem; }
+    .footer-newsletter { flex-direction: column; align-items: flex-start; }
   }
 
   @media (max-width: 600px) {
@@ -952,6 +1237,15 @@
     .hero h1 { font-size: 1.9rem; }
     .games-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
     .search-bar { display: none; }
+    .gotd-section { padding: 1rem 1.25rem; }
+    .gotd-info { padding: 1.5rem 1.25rem; }
+    .gotd-title { font-size: 1.25rem; }
+    .footer-newsletter { padding: 1.25rem; }
+    .footer-newsletter-form input { width: 100%; }
+    .footer-newsletter-form { width: 100%; }
+    .footer-newsletter-form button { flex: 1; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .footer-bottom-badges { display: none; }
   }
 
   /* AD ZONE */
@@ -1388,6 +1682,33 @@
     <button class="cat-btn cat-boys" data-cat="boys">👦 أولاد</button>
   </div>
 
+  <!-- ACTIVITY TICKER -->
+  <div class="ticker-strip" id="activity-ticker">
+    <div class="ticker-inner" id="ticker-inner">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- GAME OF THE DAY -->
+  <div class="gotd-section">
+    <div class="gotd-card" id="gotd-card">
+      <div class="gotd-info">
+        <div class="gotd-label">⭐ <span data-i18n="gotd_label">لعبة اليوم</span></div>
+        <div class="gotd-title" id="gotd-title">ثعبان</div>
+        <div class="gotd-desc" id="gotd-desc">لعبة الثعبان الكلاسيكية. كل ما تأكل طولت! تجنب الجدران وجسمك.</div>
+        <div class="gotd-actions">
+          <a href="games/snake.html" class="gotd-play-btn" id="gotd-link">▶ <span data-i18n="btn_play_now">العب الآن</span></a>
+          <span class="gotd-meta-tag" id="gotd-cat">أكشن</span>
+          <span class="gotd-meta-tag">📱 موبايل ✓</span>
+        </div>
+      </div>
+      <div class="gotd-visual">
+        <div class="gotd-emoji-bg" id="gotd-emoji-bg">🐍</div>
+        <div class="gotd-emoji-main" id="gotd-emoji-main">🐍</div>
+      </div>
+    </div>
+  </div>
+
   <!-- TRENDING -->
   <section class="section">
     <div class="section-header">
@@ -1767,6 +2088,7 @@
         <div class="game-thumb">
           <div class="game-thumb-bg" style="background: linear-gradient(135deg, #064e3b, #065f46);">🐍</div>
           <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-popular">⭐ TOP</span>
           <span class="mobile-badge">📱</span>
         </div>
         <div class="game-info">
@@ -1782,6 +2104,7 @@
         <div class="game-thumb">
           <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">🔢</div>
           <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-popular">⭐ TOP</span>
           <span class="mobile-badge">📱</span>
         </div>
         <div class="game-info">
@@ -1797,6 +2120,7 @@
         <div class="game-thumb">
           <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e3a5f, #1e40af);">🟦</div>
           <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-popular">⭐ TOP</span>
         </div>
         <div class="game-info">
           <div class="game-title" data-i18n="game_tetris">تيتريس</div>
@@ -1811,6 +2135,7 @@
         <div class="game-thumb">
           <div class="game-thumb-bg" style="background: linear-gradient(135deg, #166534, #15803d);">🧮</div>
           <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-popular">⭐ TOP</span>
           <span class="mobile-badge">📱</span>
         </div>
         <div class="game-info">
@@ -1826,6 +2151,7 @@
         <div class="game-thumb">
           <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e3a5f, #1e40af);">❌</div>
           <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-popular">⭐ TOP</span>
           <span class="mobile-badge">📱</span>
         </div>
         <div class="game-info">
@@ -1841,6 +2167,7 @@
         <div class="game-thumb">
           <div class="game-thumb-bg" style="background: linear-gradient(135deg, #7c2d12, #9a3412);">🎯</div>
           <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-popular">⭐ TOP</span>
         </div>
         <div class="game-info">
           <div class="game-title" data-i18n="game_breakout">تحطيم الطوب</div>
@@ -1945,6 +2272,18 @@
 
 <!-- FOOTER -->
 <footer>
+  <!-- Newsletter strip -->
+  <div class="footer-newsletter">
+    <div class="footer-newsletter-text">
+      <h3 data-i18n="footer_nl_title">🎮 كن أول من يعرف بالألعاب الجديدة</h3>
+      <p data-i18n="footer_nl_sub">اشترك واحصل على تنبيهات الألعاب الجديدة مجاناً</p>
+    </div>
+    <form class="footer-newsletter-form" onsubmit="onNewsletterSubmit(event)">
+      <input type="email" id="nl-email" data-i18n-placeholder="footer_nl_placeholder" placeholder="بريدك الإلكتروني..." autocomplete="email" />
+      <button type="submit" data-i18n="footer_nl_btn">اشترك مجاناً</button>
+    </form>
+  </div>
+
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
@@ -1954,21 +2293,37 @@
         </a>
         <p class="footer-tagline" data-i18n="footer_tagline">موقع ألعاب HTML5 عربي مجاني. العب مئات الألعاب بدون تحميل من أي جهاز.</p>
         <div class="footer-social">
-          <a href="#" class="social-btn">𝕏</a>
-          <a href="#" class="social-btn">f</a>
-          <a href="#" class="social-btn">📷</a>
-          <a href="#" class="social-btn">▶</a>
+          <!-- X / Twitter -->
+          <a href="#" class="social-btn tw" aria-label="Twitter/X">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.732-8.847L2.25 2.25h6.956l4.265 5.638ZM17.083 20.25h1.834L6.963 4.135H5.002Z"/></svg>
+          </a>
+          <!-- Facebook -->
+          <a href="#" class="social-btn fb" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.932-1.956 1.889v2.265h3.328l-.532 3.49H13.875V24C19.612 23.094 24 18.1 24 12.073Z"/></svg>
+          </a>
+          <!-- Instagram -->
+          <a href="#" class="social-btn ig" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069Zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0Zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324ZM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881Z"/></svg>
+          </a>
+          <!-- YouTube -->
+          <a href="#" class="social-btn yt" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z"/></svg>
+          </a>
+          <!-- Telegram -->
+          <a href="#" class="social-btn tg" aria-label="Telegram">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0Zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.96 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635Z"/></svg>
+          </a>
         </div>
       </div>
 
       <div class="footer-col">
         <h4 data-i18n="footer_games_title">الألعاب</h4>
         <ul>
-          <li><a href="#" data-i18n="cat_action_label">أكشن</a></li>
-          <li><a href="#" data-i18n="cat_racing_label">سباقات</a></li>
-          <li><a href="#" data-i18n="cat_puzzle_label">ألغاز</a></li>
-          <li><a href="#" data-i18n="cat_sports_label">رياضة</a></li>
-          <li><a href="#" data-i18n="cat_kids_label">أطفال</a></li>
+          <li><a href="#games" onclick="filterFromDrawer('action')" data-i18n="cat_action_label">أكشن</a></li>
+          <li><a href="#games" onclick="filterFromDrawer('racing')" data-i18n="cat_racing_label">سباقات</a></li>
+          <li><a href="#games" onclick="filterFromDrawer('puzzles')" data-i18n="cat_puzzle_label">ألغاز</a></li>
+          <li><a href="#games" onclick="filterFromDrawer('sports')" data-i18n="cat_sports_label">رياضة</a></li>
+          <li><a href="#games" onclick="filterFromDrawer('kids')" data-i18n="cat_kids_label">أطفال</a></li>
         </ul>
       </div>
 
@@ -1976,6 +2331,7 @@
         <h4 data-i18n="footer_site_title">الموقع</h4>
         <ul>
           <li><a href="#" data-i18n="footer_about">عن YallaPlay</a></li>
+          <li><a href="community.html" data-i18n="footer_community">المجتمع</a></li>
           <li><a href="#" data-i18n="footer_contact">تواصل معنا</a></li>
           <li><a href="#" data-i18n="footer_add_game">إضافة لعبة</a></li>
           <li><a href="#" data-i18n="footer_partners">الشراكات</a></li>
@@ -1994,7 +2350,12 @@
     </div>
 
     <div class="footer-bottom">
-      <span data-i18n="footer_copy">© 2025 YallaPlay · جميع الحقوق محفوظة</span>
+      <span data-i18n="footer_copy">© 2026 YallaPlay · جميع الحقوق محفوظة</span>
+      <div class="footer-bottom-badges">
+        <span class="footer-badge">HTML5</span>
+        <span class="footer-badge">No Download</span>
+        <span class="footer-badge">Free</span>
+      </div>
       <span data-i18n="footer_tagline_short">🎮 ألعاب HTML5 مجانية للجميع</span>
     </div>
   </div>
@@ -2087,7 +2448,13 @@
       footer_privacy: 'سياسة الخصوصية',
       footer_terms: 'شروط الاستخدام',
       footer_cookies: 'سياسة الكوكيز',
-      footer_copy: '© 2025 YallaPlay · جميع الحقوق محفوظة',
+      gotd_label: 'لعبة اليوم',
+      footer_nl_title: '🎮 كن أول من يعرف بالألعاب الجديدة',
+      footer_nl_sub: 'اشترك واحصل على تنبيهات الألعاب الجديدة مجاناً',
+      footer_nl_placeholder: 'بريدك الإلكتروني...',
+      footer_nl_btn: 'اشترك مجاناً',
+      footer_community: 'المجتمع',
+      footer_copy: '© 2026 YallaPlay · جميع الحقوق محفوظة',
       footer_tagline_short: '🎮 ألعاب HTML5 مجانية للجميع',
     },
     en: {
@@ -2174,7 +2541,13 @@
       footer_privacy: 'Privacy Policy',
       footer_terms: 'Terms of Use',
       footer_cookies: 'Cookie Policy',
-      footer_copy: '© 2025 YallaPlay · All Rights Reserved',
+      gotd_label: 'Game of the Day',
+      footer_nl_title: '🎮 Be First to Know About New Games',
+      footer_nl_sub: 'Subscribe for free new game alerts',
+      footer_nl_placeholder: 'Your email address...',
+      footer_nl_btn: 'Subscribe Free',
+      footer_community: 'Community',
+      footer_copy: '© 2026 YallaPlay · All Rights Reserved',
       footer_tagline_short: '🎮 Free HTML5 Games for Everyone',
     }
   };
@@ -2199,6 +2572,9 @@
     // Also update search input direction
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+    // Refresh dynamic components
+    if (document._tickerLang) document._tickerLang();
+    if (window._updateGotd) window._updateGotd();
   }
 
   function toggleLang() {
@@ -2402,6 +2778,92 @@
     `).join('');
   }
   loadCommunityPreview();
+
+  // ── ACTIVITY TICKER ─────────────────────────────────────────
+  (function buildTicker() {
+    const activities_ar = [
+      { av: '🎮', name: 'أحمد', msg: 'يلعب الآن', game: 'ثعبان' },
+      { av: '👾', name: 'سارة', msg: 'حققت ركورد جديد في', game: '2048' },
+      { av: '🏆', name: 'محمد', msg: 'أكمل مرحلة في', game: 'تيتريس' },
+      { av: '🔥', name: 'نور', msg: 'يلعب الآن', game: 'الطائر' },
+      { av: '⭐', name: 'خالد', msg: 'انضم للعبة', game: 'إكس أو' },
+      { av: '🎯', name: 'ليلى', msg: 'حققت نقاط عالية في', game: 'اضرب الخلد' },
+      { av: '🚀', name: 'عمر', msg: 'يلعب الآن', game: 'تحطيم الطوب' },
+      { av: '💎', name: 'هند', msg: 'أنهت مستوى في', game: 'تطابق الذاكرة' },
+      { av: '🎲', name: 'يوسف', msg: 'يلعب الآن', game: 'اختبار الحساب' },
+      { av: '🌟', name: 'ريم', msg: 'فازت في', game: 'مبعثرة الحروف' },
+    ];
+    const activities_en = [
+      { av: '🎮', name: 'Ahmed', msg: 'is playing', game: 'Snake' },
+      { av: '👾', name: 'Sara', msg: 'set a new record in', game: '2048' },
+      { av: '🏆', name: 'Mohamed', msg: 'completed a level in', game: 'Tetris' },
+      { av: '🔥', name: 'Nour', msg: 'is playing', game: 'Flappy Bird' },
+      { av: '⭐', name: 'Khaled', msg: 'joined', game: 'Tic-Tac-Toe' },
+      { av: '🎯', name: 'Layla', msg: 'scored big in', game: 'Whack-A-Mole' },
+      { av: '🚀', name: 'Omar', msg: 'is playing', game: 'Breakout' },
+      { av: '💎', name: 'Hind', msg: 'finished a level in', game: 'Memory Match' },
+      { av: '🎲', name: 'Yousef', msg: 'is playing', game: 'Math Quiz' },
+      { av: '🌟', name: 'Reem', msg: 'won at', game: 'Word Scramble' },
+    ];
+    function renderTicker() {
+      const acts = currentLang === 'ar' ? activities_ar : activities_en;
+      const doubled = [...acts, ...acts];
+      const inner = document.getElementById('ticker-inner');
+      if (!inner) return;
+      inner.innerHTML = doubled.map(a =>
+        `<span class="ticker-item"><span class="ticker-avatar">${a.av}</span><strong>${a.name}</strong> ${a.msg} <strong>${a.game}</strong></span>`
+      ).join('');
+    }
+    renderTicker();
+    // re-render on lang change
+    const _orig = window.applyLang || null;
+    document._tickerLang = renderTicker;
+  })();
+
+  // ── GAME OF THE DAY ──────────────────────────────────────────
+  (function initGotd() {
+    const games = [
+      { title_ar:'ثعبان', title_en:'Snake', desc_ar:'لعبة الثعبان الكلاسيكية. كل ما تأكل طولت! تجنب الجدران وجسمك.', desc_en:'Classic snake game! Eat food to grow. Avoid walls and yourself.', emoji:'🐍', cat_ar:'أكشن', cat_en:'Action', url:'games/snake.html' },
+      { title_ar:'تيتريس', title_en:'Tetris', desc_ar:'رتب القطع وامسح الصفوف. كلاسيك لا يُنسى!', desc_en:'Stack pieces and clear rows. A timeless classic!', emoji:'🟦', cat_ar:'أركيد', cat_en:'Arcade', url:'games/tetris.html' },
+      { title_ar:'الطائر', title_en:'Flappy Bird', desc_ar:'تحلق بين الأنابيب! مسافة واحدة خطأ وتسقط.', desc_en:'Fly between pipes! One wrong move and you fall.', emoji:'🐦', cat_ar:'أركيد', cat_en:'Arcade', url:'games/flappy.html' },
+      { title_ar:'2048', title_en:'2048', desc_ar:'دمج الأرقام للوصول لـ 2048. لعبة ذكاء مسلية!', desc_en:'Merge numbers to reach 2048. A mind-bending puzzle!', emoji:'🔢', cat_ar:'ألغاز', cat_en:'Puzzles', url:'games/2048.html' },
+      { title_ar:'تطابق الذاكرة', title_en:'Memory Match', desc_ar:'اعثر على الأزواج المتطابقة. اختبر ذاكرتك!', desc_en:'Find matching pairs. Test your memory!', emoji:'🧠', cat_ar:'ألغاز', cat_en:'Puzzles', url:'games/memory.html' },
+      { title_ar:'تحطيم الطوب', title_en:'Breakout', desc_ar:'حطم الطوب بالكرة. كلاسيك ممتع للجميع!', desc_en:'Smash bricks with a ball. A fun classic for everyone!', emoji:'🧱', cat_ar:'أركيد', cat_en:'Arcade', url:'games/breakout.html' },
+    ];
+    // rotate daily based on date
+    const dayIdx = Math.floor(Date.now() / 86400000) % games.length;
+    const g = games[dayIdx];
+    function setGotd() {
+      const isAr = currentLang === 'ar';
+      const t = document.getElementById('gotd-title');
+      const d = document.getElementById('gotd-desc');
+      const c = document.getElementById('gotd-cat');
+      const l = document.getElementById('gotd-link');
+      const emBg = document.getElementById('gotd-emoji-bg');
+      const emMain = document.getElementById('gotd-emoji-main');
+      if (t) t.textContent = isAr ? g.title_ar : g.title_en;
+      if (d) d.textContent = isAr ? g.desc_ar : g.desc_en;
+      if (c) c.textContent = isAr ? g.cat_ar : g.cat_en;
+      if (l) l.href = g.url;
+      if (emBg) emBg.textContent = g.emoji;
+      if (emMain) emMain.textContent = g.emoji;
+    }
+    setGotd();
+    window._updateGotd = setGotd;
+  })();
+
+  // ── NEWSLETTER SUBMIT ───────────────────────────────────────
+  function onNewsletterSubmit(e) {
+    e.preventDefault();
+    const input = document.getElementById('nl-email');
+    const val = input.value.trim();
+    if (!val || !val.includes('@')) {
+      showToast(currentLang === 'ar' ? 'أدخل بريداً إلكترونياً صحيحاً' : 'Enter a valid email', 'error');
+      return;
+    }
+    input.value = '';
+    showToast(currentLang === 'ar' ? '✅ تم الاشتراك! شكراً لك 🎮' : '✅ Subscribed! Thank you 🎮', 'success', 4000);
+  }
 </script>
 
 </body>
