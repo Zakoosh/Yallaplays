@@ -75,6 +75,7 @@
         <span class="score-val" id="high-score">0</span>
         <span class="score-lbl" id="best-lbl">الأفضل</span>
       </div>
+      <button class="share-game-btn" onclick="shareGame()" title="Share">📤</button>
       <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
     </div>
   </div>
@@ -280,7 +281,7 @@ ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,canvas.width,canvas.height);
 <section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
   <!-- Related games -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
-    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;"><h3 style="font-size:0.95rem;font-weight:800;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3><a href="../index.html" style="font-size:0.78rem;color:var(--accent-bright);text-decoration:none;font-weight:700;">كل الألعاب ←</a></div>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list">
       <!-- filled by JS -->
     </div>
@@ -313,9 +314,13 @@ const allGames = [
   {href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},
   {href:'../games/mathquiz.html',emoji:'🧮',name:'حساب'},
   {href:'../games/wordscramble.html',emoji:'📝',name:'كلمات'},
+  {href:'../games/fruitcatch.html',emoji:'🍓',name:'فاكهة'},
+  {href:'../games/carrace.html',emoji:'🏎️',name:'سباق'},
+  {href:'../games/penalty.html',emoji:'⚽',name:'ركلة'},
+  {href:'../games/bubbleshooter.html',emoji:'🫧',name:'فقاعات'},
 ];
 const current = window.location.pathname.split('/').pop();
-const related = allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const related = allGames.filter(g=>!g.href.includes(current)).slice(0,6);
 const list = document.getElementById('related-games-list');
 if(list) list.innerHTML = related.map(g=>`
   <a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -325,16 +330,27 @@ if(list) list.innerHTML = related.map(g=>`
 
 function shareGame() {
   const url = window.location.href;
-  const title = document.title;
+  const title_str = document.title;
   if (navigator.share) {
-    navigator.share({ title, url });
+    navigator.share({ title: title_str, url });
   } else {
-    navigator.clipboard.writeText(url).then(() => {
-      const btn = document.querySelector('.share-game-btn');
-      btn.textContent = '\u2705';
-      setTimeout(() => btn.textContent = '\ud83d\udce4', 2000);
-    });
+    navigator.clipboard.writeText(url)
+      .then(() => showGameToast(typeof lang !== 'undefined' && lang === 'en' ? '\u2705 Link copied!' : '\u2705 \u062a\u0645 \u0646\u0633\u062e \u0627\u0644\u0631\u0627\u0628\u0637!'))
+      .catch(() => showGameToast('\ud83d\udce4 Share link'));
   }
+}
+function showGameToast(msg) {
+  let t = document.getElementById('game-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'game-toast';
+    t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;padding:0.6rem 1.25rem;border-radius:20px;font-size:0.85rem;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(124,58,237,0.5);transition:opacity 0.3s;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.style.opacity = '0'; }, 2500);
 }
 </script>
 </body>
