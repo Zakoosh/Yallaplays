@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار الحساب / Math Quiz - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:#070711; --bg-card:#0e0e1f; --bg-elevated:#13132a;
+    --border:#1e1e3f; --accent:#7c3aed; --accent-bright:#a855f7;
+    --accent-glow:rgba(124,58,237,0.4); --gold:#f59e0b; --green:#10b981;
+    --red:#ef4444; --text-primary:#f1f0ff; --text-secondary:#9ca3c8;
+    --text-muted:#4b5280; --font-ar:'Cairo',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-ar);min-height:100vh;display:flex;flex-direction:column;}
+  header{background:rgba(7,7,17,0.9);border-bottom:1px solid var(--border);padding:0 1.5rem;backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;}
+  .header-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:1rem;}
+  .back-btn{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);transition:all 0.2s;}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+  .game-title{font-size:1.1rem;font-weight:900;}
+  .header-right{display:flex;gap:0.6rem;align-items:center;}
+  .score-box{background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:0.3rem 0.7rem;text-align:center;}
+  .score-val{font-size:1rem;font-weight:900;color:var(--accent-bright);display:block;}
+  .score-lbl{font-size:0.62rem;color:var(--text-muted);}
+  .lang-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);padding:0.3rem 0.6rem;border-radius:6px;font-family:var(--font-ar);font-weight:700;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
+  .lang-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+
+  main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem;gap:1.25rem;max-width:640px;margin:0 auto;width:100%;}
+
+  /* difficulty */
+  .diff-row{display:flex;gap:0.5rem;}
+  .diff-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);padding:0.45rem 1.1rem;border-radius:50px;font-family:var(--font-ar);font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .diff-btn.active,.diff-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  /* progress & timer */
+  .progress-section{width:100%;}
+  .progress-header{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem;}
+  .progress-bar-bg{height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-bright));border-radius:3px;transition:width 0.3s;}
+
+  .timer-bar-bg{height:8px;background:var(--bg-elevated);border-radius:4px;overflow:hidden;margin-top:0.75rem;}
+  .timer-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#22d3ee);border-radius:4px;transition:width 0.25s linear;}
+  .timer-bar-fill.urgent{background:linear-gradient(90deg,#f97316,var(--red));}
+
+  /* question card */
+  .question-card{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:center;box-shadow:0 0 40px rgba(124,58,237,0.08);}
+  .q-number{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;}
+  .q-text{font-size:clamp(2rem,8vw,3rem);font-weight:900;letter-spacing:-0.02em;margin-bottom:0.5rem;}
+  .q-hint{font-size:0.78rem;color:var(--text-muted);}
+
+  /* answer buttons */
+  .answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;width:100%;}
+  .ans-btn{background:var(--bg-elevated);border:2px solid var(--border);color:var(--text-primary);padding:1rem 0.5rem;border-radius:12px;font-family:var(--font-ar);font-size:1.25rem;font-weight:900;cursor:pointer;transition:all 0.18s;min-height:72px;display:flex;align-items:center;justify-content:center;}
+  .ans-btn:hover:not(:disabled){background:rgba(124,58,237,0.15);border-color:var(--accent);transform:translateY(-2px);}
+  .ans-btn.correct{background:rgba(16,185,129,0.2);border-color:var(--green);color:var(--green);}
+  .ans-btn.wrong{background:rgba(239,68,68,0.18);border-color:var(--red);color:var(--red);}
+  .ans-btn:disabled{cursor:not-allowed;opacity:0.7;}
+
+  /* result screen */
+  .result-screen{display:none;width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;flex-direction:column;align-items:center;gap:1.25rem;}
+  .result-screen.show{display:flex;}
+  .result-emoji{font-size:3.5rem;}
+  .result-title{font-size:1.6rem;font-weight:900;}
+  .result-score-big{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent-bright),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .result-stats{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+  .res-stat{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1.25rem;text-align:center;}
+  .res-stat-val{font-size:1.3rem;font-weight:900;display:block;}
+  .res-stat-lbl{font-size:0.72rem;color:var(--text-muted);}
+  .play-again-btn{background:linear-gradient(135deg,var(--accent),var(--accent-bright));color:#fff;border:none;padding:0.8rem 2.5rem;border-radius:12px;font-family:var(--font-ar);font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);transition:all 0.2s;}
+  .play-again-btn:hover{transform:translateY(-2px);}
+
+  /* start overlay */
+  .start-screen{display:flex;flex-direction:column;align-items:center;gap:1.5rem;text-align:center;padding:2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;width:100%;}
+  .start-screen h2{font-size:1.8rem;font-weight:900;}
+  .start-screen p{color:var(--text-secondary);line-height:1.7;font-size:0.95rem;}
+  .start-btn{background:linear-gradient(135deg,var(--accent),var(--accent-bright));color:#fff;border:none;padding:0.85rem 2.5rem;border-radius:12px;font-family:var(--font-ar);font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);transition:all 0.2s;}
+  .start-btn:hover{transform:translateY(-2px);}
+
+  /* feedback flash */
+  @keyframes flash-correct{0%{box-shadow:0 0 0 0 rgba(16,185,129,0.6)}100%{box-shadow:0 0 0 20px rgba(16,185,129,0)}}
+  @keyframes flash-wrong{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.6)}100%{box-shadow:0 0 0 20px rgba(239,68,68,0)}}
+  .flash-c{animation:flash-correct 0.4s ease-out;}
+  .flash-w{animation:flash-wrong 0.4s ease-out;}
+
+  @media(max-width:480px){
+    .answers-grid{grid-template-columns:1fr 1fr;}
+    .ans-btn{font-size:1.1rem;min-height:64px;}
+  }
+
+  .share-game-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .share-game-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-title">🧮 <span id="title-lbl">اختبار الحساب</span></span>
+    <div class="header-right">
+      <div class="score-box">
+        <span class="score-val" id="hdr-score">0</span>
+        <span class="score-lbl" id="score-lbl">النقاط</span>
+      </div>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Difficulty -->
+  <div class="diff-row">
+    <button class="diff-btn active" onclick="setDiff('easy')" id="d-easy">سهل</button>
+    <button class="diff-btn" onclick="setDiff('medium')" id="d-med">متوسط</button>
+    <button class="diff-btn" onclick="setDiff('hard')" id="d-hard">صعب</button>
+  </div>
+
+  <!-- Start Screen -->
+  <div class="start-screen" id="start-screen">
+    <div style="font-size:3rem">🧮</div>
+    <h2 id="ss-title">اختبار الحساب</h2>
+    <p id="ss-desc">10 أسئلة حساب. لديك 15 ثانية للإجابة على كل سؤال.<br>كل إجابة صحيحة = 100 نقطة + مكافأة السرعة!</p>
+    <button class="start-btn" onclick="startGame()" id="ss-btn">ابدأ اللعبة 🚀</button>
+  </div>
+
+  <!-- Game Area (hidden at start) -->
+  <div id="game-area" style="display:none;width:100%;display:none;flex-direction:column;align-items:center;gap:1.25rem;">
+
+    <!-- Progress -->
+    <div class="progress-section" style="width:100%">
+      <div class="progress-header">
+        <span id="q-counter">سؤال 1 / 10</span>
+        <span id="timer-text">15s</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:10%"></div>
+      </div>
+      <div class="timer-bar-bg">
+        <div class="timer-bar-fill" id="timer-fill" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-card">
+      <div class="q-number" id="q-num-lbl">السؤال الأول</div>
+      <div class="q-text" id="q-text">2 + 2 = ?</div>
+    </div>
+
+    <!-- Answers -->
+    <div class="answers-grid" id="answers-grid">
+      <button class="ans-btn" onclick="answer(0)" id="a0">1</button>
+      <button class="ans-btn" onclick="answer(1)" id="a1">2</button>
+      <button class="ans-btn" onclick="answer(2)" id="a2">3</button>
+      <button class="ans-btn" onclick="answer(3)" id="a3">4</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-screen" id="result-screen">
+    <div class="result-emoji" id="res-emoji">🏆</div>
+    <div class="result-title" id="res-title">أحسنت!</div>
+    <div class="result-score-big" id="res-score">850</div>
+    <div class="result-stats">
+      <div class="res-stat">
+        <span class="res-stat-val" id="res-correct">8</span>
+        <span class="res-stat-lbl" id="res-correct-lbl">إجابات صحيحة</span>
+      </div>
+      <div class="res-stat">
+        <span class="res-stat-val" id="res-accuracy">80%</span>
+        <span class="res-stat-lbl" id="res-acc-lbl">الدقة</span>
+      </div>
+      <div class="res-stat">
+        <span class="res-stat-val" id="res-best">850</span>
+        <span class="res-stat-lbl" id="res-best-lbl">أعلى نقاط</span>
+      </div>
+    </div>
+    <button class="play-again-btn" onclick="playAgain()" id="play-again-btn">العب مجدداً 🔄</button>
+  </div>
+
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="3333333333"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<script>
+// ─── i18n ────────────────────────────────────────────────────────────────────
+const T = {
+  ar:{
+    back:'← الرئيسية', title:'اختبار الحساب', score:'النقاط',
+    easy:'سهل', medium:'متوسط', hard:'صعب',
+    ssTitle:'اختبار الحساب', ssDesc:'10 أسئلة حساب. لديك 15 ثانية للإجابة على كل سؤال.\nكل إجابة صحيحة = 100 نقطة + مكافأة السرعة!',
+    ssBtn:'ابدأ اللعبة 🚀', qCounter:'سؤال {n} / 10', timerText:'{s}s',
+    correct:'إجابات صحيحة', accuracy:'الدقة', best:'أعلى نقاط', playAgain:'العب مجدداً 🔄',
+    excellent:'ممتاز! 🏆', great:'رائع! 🎉', good:'جيد! 👍', tryAgain:'حاول مجدداً 💪',
+    question:'السؤال',
+  },
+  en:{
+    back:'← Home', title:'Math Quiz', score:'Score',
+    easy:'Easy', medium:'Medium', hard:'Hard',
+    ssTitle:'Math Quiz', ssDesc:'10 math questions. You have 15 seconds to answer each.\nEach correct answer = 100 pts + speed bonus!',
+    ssBtn:'Start Game 🚀', qCounter:'Question {n} / 10', timerText:'{s}s',
+    correct:'Correct', accuracy:'Accuracy', best:'Best Score', playAgain:'Play Again 🔄',
+    excellent:'Excellent! 🏆', great:'Great! 🎉', good:'Good! 👍', tryAgain:'Try Again 💪',
+    question:'Question',
+  }
+};
+let lang = localStorage.getItem('yallaplays_lang') || 'ar';
+
+function applyLang(l) {
+  lang = l;
+  localStorage.setItem('yallaplays_lang', l);
+  document.documentElement.dir = l==='ar'?'rtl':'ltr';
+  document.documentElement.lang = l;
+  const t = T[l];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('score-lbl').textContent = t.score;
+  document.getElementById('d-easy').textContent = t.easy;
+  document.getElementById('d-med').textContent = t.medium;
+  document.getElementById('d-hard').textContent = t.hard;
+  document.getElementById('ss-title').textContent = t.ssTitle;
+  document.getElementById('ss-desc').textContent = t.ssDesc;
+  document.getElementById('ss-btn').textContent = t.ssBtn;
+  document.getElementById('res-correct-lbl').textContent = t.correct;
+  document.getElementById('res-acc-lbl').textContent = t.accuracy;
+  document.getElementById('res-best-lbl').textContent = t.best;
+  document.getElementById('play-again-btn').textContent = t.playAgain;
+  document.getElementById('lang-btn').textContent = l==='ar'?'EN':'عر';
+  if (gameRunning) updateCounterDisplay();
+}
+function toggleLang(){ applyLang(lang==='ar'?'en':'ar'); }
+
+// ─── Difficulty ───────────────────────────────────────────────────────────────
+let diff = 'easy';
+const diffRanges = { easy:[1,10], medium:[1,50], hard:[1,100] };
+
+function setDiff(d) {
+  diff = d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('d-'+{easy:'easy',medium:'med',hard:'hard'}[d]).classList.add('active');
+}
+
+// ─── Game State ───────────────────────────────────────────────────────────────
+const TOTAL_Q = 10;
+const TIME_PER_Q = 15;
+
+let questions = [], currentQ = 0, score = 0, correctCount = 0;
+let timerInterval = null, timeLeft = TIME_PER_Q;
+let gameRunning = false, answered = false;
+let bestScore = parseInt(localStorage.getItem('yp_mathquiz_best')||'0');
+
+function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function generateQuestion() {
+  const [min,max] = diffRanges[diff];
+  const ops = ['+','-','×','÷'];
+  const op = ops[rand(0,3)];
+  let a,b,ans;
+  if(op==='+'){a=rand(min,max);b=rand(min,max);ans=a+b;}
+  else if(op==='-'){a=rand(min,max);b=rand(0,a);ans=a-b;}
+  else if(op==='×'){a=rand(min,Math.min(max,12));b=rand(1,Math.min(max,12));ans=a*b;}
+  else{b=rand(1,Math.min(max,12));ans=rand(1,Math.min(max,max/b));a=ans*b;}
+  return { text:`${a} ${op} ${b} = ?`, answer:ans };
+}
+
+function generateChoices(correct) {
+  const set = new Set([correct]);
+  while(set.size<4){
+    const delta = rand(-15,15);
+    const c = correct+delta;
+    if(c!==correct&&c>=0) set.add(c);
+  }
+  return [...set].sort(()=>Math.random()-0.5);
+}
+
+function buildQuestions() {
+  questions = Array.from({length:TOTAL_Q},()=>generateQuestion());
+}
+
+function startGame() {
+  buildQuestions();
+  currentQ=0; score=0; correctCount=0; gameRunning=true;
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('result-screen').classList.remove('show');
+  const ga=document.getElementById('game-area');
+  ga.style.display='flex'; ga.style.flexDirection='column'; ga.style.alignItems='center'; ga.style.gap='1.25rem';
+  updateScore();
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  timeLeft = TIME_PER_Q;
+  const q = questions[currentQ];
+  document.getElementById('q-text').textContent = q.text;
+  updateCounterDisplay();
+  const choices = generateChoices(q.answer);
+  for(let i=0;i<4;i++){
+    const btn=document.getElementById('a'+i);
+    btn.textContent=choices[i];
+    btn.className='ans-btn';
+    btn.disabled=false;
+    btn.dataset.val=choices[i];
+  }
+  updateProgress();
+  startTimer();
+}
+
+function updateCounterDisplay(){
+  const t=T[lang];
+  document.getElementById('q-counter').textContent=t.qCounter.replace('{n}',currentQ+1);
+}
+
+function updateProgress(){
+  const pct=((currentQ)/TOTAL_Q)*100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  updateTimerBar();
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    updateTimerBar();
+    if(timeLeft<=0){clearInterval(timerInterval);timeUp();}
+  },1000);
+}
+
+function updateTimerBar(){
+  const pct=(timeLeft/TIME_PER_Q)*100;
+  const fill=document.getElementById('timer-fill');
+  fill.style.width=pct+'%';
+  fill.className='timer-bar-fill'+(timeLeft<=5?' urgent':'');
+  document.getElementById('timer-text').textContent=T[lang].timerText.replace('{s}',timeLeft);
+}
+
+function answer(idx){
+  if(answered) return;
+  answered=true;
+  clearInterval(timerInterval);
+  const q=questions[currentQ];
+  const chosen=parseInt(document.getElementById('a'+idx).dataset.val);
+  const correct=(chosen===q.answer);
+  // highlight buttons
+  for(let i=0;i<4;i++){
+    const btn=document.getElementById('a'+i);
+    btn.disabled=true;
+    if(parseInt(btn.dataset.val)===q.answer) btn.classList.add('correct');
+    else if(i===idx&&!correct) btn.classList.add('wrong');
+  }
+  if(correct){
+    correctCount++;
+    const speedBonus=Math.round((timeLeft/TIME_PER_Q)*50);
+    score+=100+speedBonus;
+    updateScore();
+    document.getElementById('game-area').classList.add('flash-c');
+    setTimeout(()=>document.getElementById('game-area').classList.remove('flash-c'),400);
+  }
+  setTimeout(nextQuestion,900);
+}
+
+function timeUp(){
+  if(answered) return;
+  answered=true;
+  const q=questions[currentQ];
+  for(let i=0;i<4;i++){
+    const btn=document.getElementById('a'+i);
+    btn.disabled=true;
+    if(parseInt(btn.dataset.val)===q.answer) btn.classList.add('correct');
+  }
+  setTimeout(nextQuestion,900);
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ>=TOTAL_Q){endGame();return;}
+  showQuestion();
+}
+
+function updateScore(){
+  document.getElementById('hdr-score').textContent=score;
+}
+
+function endGame(){
+  gameRunning=false;
+  clearInterval(timerInterval);
+  document.getElementById('game-area').style.display='none';
+  const t=T[lang];
+  if(score>bestScore){bestScore=score;localStorage.setItem('yp_mathquiz_best',bestScore);}
+  const acc=Math.round((correctCount/TOTAL_Q)*100);
+  let emoji='💪',title=t.tryAgain;
+  if(acc>=90){emoji='🏆';title=t.excellent;}
+  else if(acc>=70){emoji='🎉';title=t.great;}
+  else if(acc>=50){emoji='👍';title=t.good;}
+  document.getElementById('res-emoji').textContent=emoji;
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-score').textContent=score+' '+t.score;
+  document.getElementById('res-correct').textContent=correctCount+'/'+TOTAL_Q;
+  document.getElementById('res-accuracy').textContent=acc+'%';
+  document.getElementById('res-best').textContent=bestScore;
+  document.getElementById('result-screen').classList.add('show');
+}
+
+function playAgain(){
+  document.getElementById('result-screen').classList.remove('show');
+  document.getElementById('start-screen').style.display='flex';
+  document.getElementById('game-area').style.display='none';
+  score=0; updateScore();
+}
+
+// init
+applyLang(lang);
+</script>
+
+<!-- Related & Comments -->
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <!-- Related games -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list">
+      <!-- filled by JS -->
+    </div>
+  </div>
+  <!-- Disqus -->
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = window.location.href;
+      this.page.identifier = window.location.pathname;
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yallaplay.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+</section>
+<script>
+// Related games
+const allGames = [
+  {href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},
+  {href:'../games/tictactoe.html',emoji:'❌',name:'إكس أو'},
+  {href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},
+  {href:'../games/2048.html',emoji:'🔢',name:'2048'},
+  {href:'../games/flappy.html',emoji:'🐦',name:'الطائر'},
+  {href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'},
+  {href:'../games/tetris.html',emoji:'🟦',name:'تيتريس'},
+  {href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},
+  {href:'../games/mathquiz.html',emoji:'🧮',name:'حساب'},
+  {href:'../games/wordscramble.html',emoji:'📝',name:'كلمات'},
+];
+const current = window.location.pathname.split('/').pop();
+const related = allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list = document.getElementById('related-games-list');
+if(list) list.innerHTML = related.map(g=>`
+  <a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:1.5rem">${g.emoji}</span>
+    <span style="font-size:0.75rem;font-weight:700">${g.name}</span>
+  </a>`).join('');
+
+function shareGame() {
+  const url = window.location.href;
+  const title = document.title;
+  if (navigator.share) {
+    navigator.share({ title, url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('.share-game-btn');
+      btn.textContent = '\u2705';
+      setTimeout(() => btn.textContent = '\ud83d\udce4', 2000);
+    });
+  }
+}
+</script>
+</body>
+</html>

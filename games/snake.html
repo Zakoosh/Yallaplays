@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ثعبان / Snake - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #7c3aed; --accent-bright: #a855f7;
+    --accent-glow: rgba(124,58,237,0.4); --gold: #f59e0b; --green: #10b981;
+    --red: #ef4444; --text-primary: #f1f0ff; --text-secondary: #9ca3c8;
+    --text-muted: #4b5280; --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; }
+  header {
+    background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border);
+    padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:10;
+  }
+  .header-inner { max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .game-header-title { font-size:1.1rem; font-weight:900; }
+  .score-display { display:flex; gap:1rem; align-items:center; }
+  .score-box { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.7rem; text-align:center; }
+  .score-val { font-size:1rem; font-weight:900; color:var(--accent-bright); display:block; }
+  .score-lbl { font-size:0.65rem; color:var(--text-muted); }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; padding:1.5rem 1rem; gap:1rem; }
+  #game-container { position:relative; }
+  canvas { border:2px solid var(--border); border-radius:12px; display:block; background:#0a0a1a; box-shadow:0 0 30px var(--accent-glow); }
+  .controls-row { display:flex; gap:0.5rem; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .ctrl-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); width:56px; height:56px; border-radius:10px; font-size:1.3rem; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; }
+  .ctrl-btn:hover, .ctrl-btn:active { background:var(--accent); border-color:var(--accent); transform:scale(0.95); }
+  .dpad { display:grid; grid-template-columns:56px 56px 56px; grid-template-rows:56px 56px; gap:4px; }
+  .dpad .up { grid-column:2; grid-row:1; }
+  .dpad .left { grid-column:1; grid-row:2; }
+  .dpad .down { grid-column:2; grid-row:2; }
+  .dpad .right { grid-column:3; grid-row:2; }
+  .action-btns { display:flex; gap:0.5rem; }
+  #overlay {
+    position:absolute; inset:0; background:rgba(7,7,17,0.92); border-radius:12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;
+    backdrop-filter:blur(8px);
+  }
+  #overlay h2 { font-size:1.8rem; font-weight:900; }
+  #overlay .final-score { font-size:1rem; color:var(--text-secondary); }
+  .start-btn {
+    background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white;
+    border:none; padding:0.75rem 2rem; border-radius:10px; font-family:var(--font-ar);
+    font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px var(--accent-glow);
+    transition:all 0.2s;
+  }
+  .start-btn:hover { transform:translateY(-2px); }
+  .status-bar { display:flex; gap:1rem; align-items:center; font-size:0.8rem; color:var(--text-secondary); }
+  .speed-indicator { background:var(--bg-elevated); border:1px solid var(--border); border-radius:6px; padding:0.2rem 0.6rem; }
+
+  .share-game-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .share-game-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-header-title">🐍 <span id="title-lbl">ثعبان</span></span>
+    <div class="score-display">
+      <div class="score-box">
+        <span class="score-val" id="score">0</span>
+        <span class="score-lbl" id="score-lbl">النقاط</span>
+      </div>
+      <div class="score-box">
+        <span class="score-val" id="high-score">0</span>
+        <span class="score-lbl" id="best-lbl">الأفضل</span>
+      </div>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="game-container">
+    <canvas id="canvas"></canvas>
+    <div id="overlay">
+      <div style="font-size:3rem">🐍</div>
+      <h2 id="overlay-title">ثعبان</h2>
+      <div class="final-score" id="overlay-msg">اضغط للبدء</div>
+      <button class="start-btn" id="start-btn" onclick="startGame()">▶ ابدأ</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span id="level-lbl">المستوى: <strong id="level">1</strong></span>
+    <span class="speed-indicator" id="food-lbl">طعام: <strong id="food-count">0</strong></span>
+    <button class="ctrl-btn" style="width:auto;padding:0 1rem;" onclick="togglePause()" id="pause-btn">⏸</button>
+  </div>
+
+  <div class="dpad">
+    <button class="ctrl-btn up" onclick="setDir(0,-1)">▲</button>
+    <button class="ctrl-btn left" onclick="setDir(-1,0)">◄</button>
+    <button class="ctrl-btn down" onclick="setDir(0,1)">▼</button>
+    <button class="ctrl-btn right" onclick="setDir(1,0)">►</button>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="3333333333"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<script>
+const CELL = 20, COLS = 20, ROWS = 20;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let size = Math.min(400, window.innerWidth * 0.9);
+size = Math.floor(size / COLS) * COLS;
+canvas.width = size; canvas.height = size;
+const cell = size / COLS;
+
+let snake, dir, nextDir, food, score, highScore, gameLoop, paused, running, foodCount;
+highScore = parseInt(localStorage.getItem('snake_hs') || '0');
+document.getElementById('high-score').textContent = highScore;
+
+function startGame() {
+  snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  dir = {x:1,y:0}; nextDir = {x:1,y:0};
+  score = 0; foodCount = 0;
+  document.getElementById('score').textContent = 0;
+  document.getElementById('food-count').textContent = 0;
+  document.getElementById('level').textContent = 1;
+  placeFood();
+  document.getElementById('overlay').style.display = 'none';
+  running = true; paused = false;
+  clearInterval(gameLoop);
+  gameLoop = setInterval(tick, getSpeed());
+}
+
+function getSpeed() { return Math.max(80, 200 - Math.floor(foodCount / 5) * 15); }
+
+function placeFood() {
+  do {
+    food = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)};
+  } while (snake.some(s => s.x === food.x && s.y === food.y));
+}
+
+function setDir(x, y) {
+  if (x === 1 && dir.x === -1) return;
+  if (x === -1 && dir.x === 1) return;
+  if (y === 1 && dir.y === -1) return;
+  if (y === -1 && dir.y === 1) return;
+  nextDir = {x, y};
+}
+
+function togglePause() {
+  if (!running) return;
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? '▶' : '⏸';
+  if (!paused) { clearInterval(gameLoop); gameLoop = setInterval(tick, getSpeed()); }
+}
+
+function tick() {
+  if (paused) return;
+  dir = nextDir;
+  const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+  if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS || snake.some(s => s.x===head.x && s.y===head.y)) {
+    endGame(); return;
+  }
+  snake.unshift(head);
+  if (head.x === food.x && head.y === food.y) {
+    score += 10; foodCount++;
+    document.getElementById('score').textContent = score;
+    document.getElementById('food-count').textContent = foodCount;
+    document.getElementById('level').textContent = Math.floor(foodCount/5)+1;
+    if (score > highScore) { highScore = score; localStorage.setItem('snake_hs', highScore); document.getElementById('high-score').textContent = highScore; }
+    placeFood();
+    clearInterval(gameLoop); gameLoop = setInterval(tick, getSpeed());
+  } else {
+    snake.pop();
+  }
+  draw();
+}
+
+function draw() {
+  ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Grid
+  ctx.strokeStyle = 'rgba(30,30,63,0.5)'; ctx.lineWidth = 0.5;
+  for (let i=0; i<=COLS; i++) { ctx.beginPath(); ctx.moveTo(i*cell,0); ctx.lineTo(i*cell,canvas.height); ctx.stroke(); }
+  for (let i=0; i<=ROWS; i++) { ctx.beginPath(); ctx.moveTo(0,i*cell); ctx.lineTo(canvas.width,i*cell); ctx.stroke(); }
+  // Food
+  ctx.fillStyle = '#ef4444';
+  ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 15;
+  ctx.beginPath(); ctx.arc(food.x*cell+cell/2, food.y*cell+cell/2, cell*0.4, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+  // Snake
+  snake.forEach((seg, i) => {
+    const ratio = i/snake.length;
+    ctx.fillStyle = i===0 ? '#10b981' : `hsl(${160-ratio*40},70%,${40-ratio*10}%)`;
+    ctx.shadowColor = i===0 ? '#10b981' : 'transparent';
+    ctx.shadowBlur = i===0 ? 10 : 0;
+    const pad = i===0 ? 1 : 2;
+    ctx.beginPath();
+    ctx.roundRect(seg.x*cell+pad, seg.y*cell+pad, cell-pad*2, cell-pad*2, i===0?4:3);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    if (i===0) {
+      ctx.fillStyle = '#0a0a1a';
+      const ew = dir.x, ey = dir.y;
+      const eyeOffset = 3;
+      ctx.beginPath(); ctx.arc(seg.x*cell+cell/2 + ey*eyeOffset + ew*4, seg.y*cell+cell/2 - ex*eyeOffset + ey*4, 2, 0, Math.PI*2); ctx.fill();
+    }
+  });
+}
+
+// hackfix for eye rendering
+const ex = 0;
+
+function endGame() {
+  running = false; clearInterval(gameLoop);
+  const overlay = document.getElementById('overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('overlay-title').textContent = currentLang==='ar' ? 'انتهت اللعبة!' : 'Game Over!';
+  document.getElementById('overlay-msg').textContent = (currentLang==='ar'?'النقاط: ':'Score: ') + score + (currentLang==='ar'?' | الأفضل: ':' | Best: ') + highScore;
+  document.getElementById('start-btn').textContent = currentLang==='ar' ? '▶ مرة أخرى' : '▶ Play Again';
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (['ArrowUp','w','W'].includes(e.key)) { e.preventDefault(); setDir(0,-1); }
+  if (['ArrowDown','s','S'].includes(e.key)) { e.preventDefault(); setDir(0,1); }
+  if (['ArrowLeft','a','A'].includes(e.key)) { e.preventDefault(); setDir(-1,0); }
+  if (['ArrowRight','d','D'].includes(e.key)) { e.preventDefault(); setDir(1,0); }
+  if (e.key === 'p' || e.key === 'P') togglePause();
+  if (e.key === ' ' && !running) startGame();
+});
+
+// Touch / swipe
+let touchStart = null;
+canvas.addEventListener('touchstart', e => { touchStart = {x:e.touches[0].clientX, y:e.touches[0].clientY}; e.preventDefault(); }, {passive:false});
+canvas.addEventListener('touchend', e => {
+  if (!touchStart) return;
+  const dx = e.changedTouches[0].clientX - touchStart.x;
+  const dy = e.changedTouches[0].clientY - touchStart.y;
+  if (Math.abs(dx) > Math.abs(dy)) { if (dx>20) setDir(1,0); else if (dx<-20) setDir(-1,0); }
+  else { if (dy>20) setDir(0,1); else if (dy<-20) setDir(0,-1); }
+  touchStart = null;
+}, {passive:false});
+
+// i18n
+const t = {
+  ar:{title:'ثعبان',back:'← الرئيسية',score:'النقاط',best:'الأفضل',level:'المستوى',food:'طعام',start:'▶ ابدأ',again:'▶ مرة أخرى',gameover:'انتهت اللعبة!',pressstart:'اضغط للبدء'},
+  en:{title:'Snake',back:'← Home',score:'Score',best:'Best',level:'Level',food:'Food',start:'▶ Start',again:'▶ Play Again',gameover:'Game Over!',pressstart:'Press to Start'}
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang==='ar'?'rtl':'ltr';
+  document.documentElement.lang = lang;
+  document.getElementById('title-lbl').textContent = t[lang].title;
+  document.getElementById('back-lbl').textContent = t[lang].back;
+  document.getElementById('score-lbl').textContent = t[lang].score;
+  document.getElementById('best-lbl').textContent = t[lang].best;
+  document.getElementById('lang-btn').textContent = lang==='ar'?'EN':'عر';
+  if (!running) { document.getElementById('overlay-title').textContent = t[lang].title; document.getElementById('overlay-msg').textContent = t[lang].pressstart; document.getElementById('start-btn').textContent = t[lang].start; }
+}
+function toggleLang() { applyLang(currentLang==='ar'?'en':'ar'); localStorage.setItem('yallaplays_lang', currentLang); }
+applyLang(currentLang);
+
+// Initial draw
+ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+</script>
+
+<!-- Related & Comments -->
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <!-- Related games -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list">
+      <!-- filled by JS -->
+    </div>
+  </div>
+  <!-- Disqus -->
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = window.location.href;
+      this.page.identifier = window.location.pathname;
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yallaplay.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+</section>
+<script>
+// Related games
+const allGames = [
+  {href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},
+  {href:'../games/tictactoe.html',emoji:'❌',name:'إكس أو'},
+  {href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},
+  {href:'../games/2048.html',emoji:'🔢',name:'2048'},
+  {href:'../games/flappy.html',emoji:'🐦',name:'الطائر'},
+  {href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'},
+  {href:'../games/tetris.html',emoji:'🟦',name:'تيتريس'},
+  {href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},
+  {href:'../games/mathquiz.html',emoji:'🧮',name:'حساب'},
+  {href:'../games/wordscramble.html',emoji:'📝',name:'كلمات'},
+];
+const current = window.location.pathname.split('/').pop();
+const related = allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list = document.getElementById('related-games-list');
+if(list) list.innerHTML = related.map(g=>`
+  <a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:1.5rem">${g.emoji}</span>
+    <span style="font-size:0.75rem;font-weight:700">${g.name}</span>
+  </a>`).join('');
+
+function shareGame() {
+  const url = window.location.href;
+  const title = document.title;
+  if (navigator.share) {
+    navigator.share({ title, url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('.share-game-btn');
+      btn.textContent = '\u2705';
+      setTimeout(() => btn.textContent = '\ud83d\udce4', 2000);
+    });
+  }
+}
+</script>
+</body>
+</html>

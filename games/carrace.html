@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سباق السيارات / Car Race - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #1d4ed8; --accent-bright: #60a5fa;
+    --accent-glow: rgba(29,78,216,0.5); --gold: #f59e0b;
+    --text-primary: #f1f0ff; --text-secondary: #9ca3c8; --text-muted: #4b5280;
+    --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border); padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:10; }
+  .header-inner { max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .game-header-title { font-size:1.1rem; font-weight:900; }
+  .score-display { display:flex; gap:0.75rem; align-items:center; }
+  .score-box { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.7rem; text-align:center; }
+  .score-val { font-size:1rem; font-weight:900; color:var(--accent-bright); display:block; }
+  .score-lbl { font-size:0.65rem; color:var(--text-muted); }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; }
+  .share-game-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .share-game-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; padding:1.25rem 1rem; gap:1rem; }
+  #game-container { position:relative; }
+  canvas { border:2px solid var(--border); border-radius:12px; display:block; box-shadow:0 0 30px var(--accent-glow); }
+  #overlay { position:absolute; inset:0; background:rgba(7,7,17,0.92); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; backdrop-filter:blur(8px); }
+  #overlay h2 { font-size:1.8rem; font-weight:900; }
+  .overlay-sub { font-size:0.9rem; color:var(--text-secondary); text-align:center; }
+  .start-btn { background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white; border:none; padding:0.75rem 2rem; border-radius:10px; font-family:var(--font-ar); font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px var(--accent-glow); transition:all 0.2s; }
+  .start-btn:hover { transform:translateY(-2px); }
+  .ctrl-row { display:flex; gap:2rem; }
+  .ctrl-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); width:80px; height:64px; border-radius:10px; font-size:1.5rem; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; font-weight:900; }
+  .ctrl-btn:active { background:var(--accent); border-color:var(--accent); transform:scale(0.95); }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-header-title">🏎️ <span id="title-lbl">سباق السيارات</span></span>
+    <div class="score-display">
+      <div class="score-box">
+        <span class="score-val" id="score">0</span>
+        <span class="score-lbl" id="score-lbl">المسافة</span>
+      </div>
+      <div class="score-box">
+        <span class="score-val" id="high-score">0</span>
+        <span class="score-lbl" id="best-lbl">الأفضل</span>
+      </div>
+      <button class="share-game-btn" onclick="shareGame()" title="مشاركة">📤</button>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="game-container">
+    <canvas id="canvas"></canvas>
+    <div id="overlay">
+      <div style="font-size:3rem">🏎️</div>
+      <h2 id="overlay-title">سباق السيارات</h2>
+      <div class="overlay-sub" id="overlay-msg">تجنب السيارات الأخرى!</div>
+      <button class="start-btn" id="start-btn" onclick="startGame()">▶ ابدأ</button>
+    </div>
+  </div>
+
+  <div class="ctrl-row">
+    <button class="ctrl-btn" onpointerdown="keys.left=true" onpointerup="keys.left=false" ontouchstart="keys.left=true;event.preventDefault()" ontouchend="keys.left=false">◄</button>
+    <button class="ctrl-btn" onpointerdown="keys.right=true" onpointerup="keys.right=false" ontouchstart="keys.right=true;event.preventDefault()" ontouchend="keys.right=false">►</button>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list"></div>
+  </div>
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () { this.page.url = window.location.href; this.page.identifier = window.location.pathname; };
+    (function() { var d = document, s = d.createElement('script'); s.src = 'https://yallaplay.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s); })();
+  </script>
+</section>
+<script>
+const allGames=[{href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},{href:'../games/flappy.html',emoji:'🐦',name:'الطائر'},{href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},{href:'../games/penalty.html',emoji:'⚽',name:'ركلة الجزاء'}];
+const current=window.location.pathname.split('/').pop();
+const related=allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list=document.getElementById('related-games-list');
+if(list)list.innerHTML=related.map(g=>`<a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:1.5rem">${g.emoji}</span><span style="font-size:0.75rem;font-weight:700">${g.name}</span></a>`).join('');
+</script>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = Math.min(360, window.innerWidth * 0.92);
+const H = Math.min(560, window.innerHeight * 0.58);
+canvas.width = W; canvas.height = H;
+
+const ROAD_LEFT = W * 0.1, ROAD_RIGHT = W * 0.9;
+const ROAD_W = ROAD_RIGHT - ROAD_LEFT;
+const LANE_W = ROAD_W / 3;
+const LANES = [ROAD_LEFT + LANE_W/2, ROAD_LEFT + LANE_W*1.5, ROAD_LEFT + LANE_W*2.5];
+
+let score, highScore, gameRunning, raf, roadOffset, speed, enemies, player, invincible, invTimer;
+highScore = parseInt(localStorage.getItem('carrace_hs') || '0');
+document.getElementById('high-score').textContent = highScore;
+const keys = { left: false, right: false };
+let frameCount = 0;
+
+const enemyColors = ['#ef4444','#22c55e','#f97316','#8b5cf6','#ec4899'];
+const enemyEmojis = ['🚗','🚙','🚕','🚌','🏎️'];
+
+function startGame() {
+  score = 0; roadOffset = 0; speed = 4; frameCount = 0; invincible = false;
+  player = { x: LANES[1], y: H - 80, w: 36, h: 56, lane: 1 };
+  enemies = [];
+  document.getElementById('score').textContent = 0;
+  document.getElementById('overlay').style.display = 'none';
+  gameRunning = true;
+  if (raf) cancelAnimationFrame(raf);
+  loop();
+}
+
+function loop() {
+  if (!gameRunning) return;
+  update();
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+function update() {
+  frameCount++;
+  // Move road
+  roadOffset = (roadOffset + speed) % 80;
+
+  // Speed increase
+  if (frameCount % 300 === 0) speed = Math.min(14, speed + 0.8);
+
+  // Score
+  score++;
+  if (frameCount % 10 === 0) {
+    document.getElementById('score').textContent = Math.floor(score/10);
+    if (Math.floor(score/10) > highScore) {
+      highScore = Math.floor(score/10);
+      localStorage.setItem('carrace_hs', highScore);
+      document.getElementById('high-score').textContent = highScore;
+    }
+  }
+
+  // Player movement
+  const moveSpeed = W * 0.025;
+  if (keys.left && player.x > ROAD_LEFT + player.w/2 + 4) player.x -= moveSpeed;
+  if (keys.right && player.x < ROAD_RIGHT - player.w/2 - 4) player.x += moveSpeed;
+
+  // Snap to lane (optional gentle)
+  const closestLane = LANES.reduce((a, b) => Math.abs(b - player.x) < Math.abs(a - player.x) ? b : a);
+  // Soft snap
+  if (!keys.left && !keys.right) player.x += (closestLane - player.x) * 0.12;
+
+  // Spawn enemies
+  if (frameCount % Math.max(30, 80 - speed * 3) === 0) {
+    const laneIdx = Math.floor(Math.random() * 3);
+    const colorIdx = Math.floor(Math.random() * enemyColors.length);
+    enemies.push({ x: LANES[laneIdx], y: -70, w: 36, h: 56, color: enemyColors[colorIdx], emoji: enemyEmojis[colorIdx] });
+  }
+
+  // Update enemies
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    enemies[i].y += speed;
+    if (enemies[i].y > H + 70) { enemies.splice(i, 1); continue; }
+
+    // Collision
+    if (!invincible) {
+      const dx = Math.abs(enemies[i].x - player.x);
+      const dy = Math.abs(enemies[i].y - player.y);
+      if (dx < 32 && dy < 50) {
+        enemies.splice(i, 1);
+        gameOver();
+        return;
+      }
+    }
+  }
+
+  if (invincible) {
+    invTimer--;
+    if (invTimer <= 0) invincible = false;
+  }
+}
+
+function gameOver() {
+  gameRunning = false;
+  document.getElementById('overlay-title').textContent = currentLang === 'ar' ? 'تحطمت!' : 'Crashed!';
+  document.getElementById('overlay-msg').textContent = (currentLang === 'ar' ? 'مسافتك: ' : 'Distance: ') + Math.floor(score/10);
+  document.getElementById('start-btn').textContent = currentLang === 'ar' ? '▶ العب مجدداً' : '▶ Play Again';
+  document.getElementById('overlay').style.display = 'flex';
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Sky background
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#0a0a18');
+  bg.addColorStop(1, '#0f0f25');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grass sides
+  ctx.fillStyle = '#1a3a1a';
+  ctx.fillRect(0, 0, ROAD_LEFT, H);
+  ctx.fillRect(ROAD_RIGHT, 0, W - ROAD_RIGHT, H);
+
+  // Road
+  ctx.fillStyle = '#2d2d3d';
+  ctx.fillRect(ROAD_LEFT, 0, ROAD_W, H);
+
+  // Road edges
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(ROAD_LEFT, 0); ctx.lineTo(ROAD_LEFT, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ROAD_RIGHT, 0); ctx.lineTo(ROAD_RIGHT, H); ctx.stroke();
+
+  // Lane dashes
+  ctx.setLineDash([40, 40]);
+  ctx.strokeStyle = '#555570';
+  ctx.lineWidth = 2;
+  for (let lane = 1; lane < 3; lane++) {
+    const lx = ROAD_LEFT + LANE_W * lane;
+    ctx.beginPath(); ctx.moveTo(lx, -80 + roadOffset); ctx.lineTo(lx, H + 80); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Draw enemies
+  ctx.font = '2rem Arial';
+  ctx.textAlign = 'center';
+  for (const e of enemies) {
+    ctx.fillStyle = e.color;
+    ctx.fillRect(e.x - e.w/2, e.y - e.h/2, e.w, e.h);
+    ctx.fillText(e.emoji, e.x, e.y + 8);
+  }
+
+  // Draw player
+  if (!invincible || frameCount % 4 < 2) {
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(player.x - player.w/2, player.y - player.h/2, player.w, player.h);
+    ctx.font = '2rem Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('🚙', player.x, player.y + 10);
+  }
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') keys.left = true;
+  if (e.key === 'ArrowRight') keys.right = true;
+  if (e.key === ' ' || e.key === 'Enter') { if (!gameRunning) startGame(); }
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft') keys.left = false;
+  if (e.key === 'ArrowRight') keys.right = false;
+});
+
+// i18n
+const i18n = {
+  ar: { back:'← الرئيسية', title:'سباق السيارات', score:'المسافة', best:'الأفضل', related:'ألعاب مشابهة' },
+  en: { back:'← Home', title:'Car Race', score:'Distance', best:'Best', related:'Similar Games' }
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('score-lbl').textContent = t.score;
+  document.getElementById('best-lbl').textContent = t.best;
+  document.getElementById('overlay-title').textContent = t.title;
+  document.getElementById('related-title').textContent = t.related;
+  document.getElementById('lang-btn').textContent = lang === 'ar' ? 'EN' : 'عر';
+}
+function toggleLang() { applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+applyLang(currentLang);
+
+function shareGame() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title: document.title, url }); }
+  else { navigator.clipboard.writeText(url).then(() => { const btn = document.querySelector('.share-game-btn'); btn.textContent = '✅'; setTimeout(() => btn.textContent = '📤', 2000); }); }
+}
+
+draw();
+</script>
+</body>
+</html>

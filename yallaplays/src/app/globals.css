@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg-primary: #0a0a14;
+  --bg-card: #13131f;
+  --bg-elevated: #1a1a2e;
+  --accent-purple: #7c3aed;
+  --accent-cyan: #06b6d4;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+  --text-primary: #e2e8f0;
+  --text-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+}
+
+html[dir='rtl'] {
+  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-purple);
+  border-radius: 4px;
+}
+
+/* Game canvas */
+canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Mobile touch button base */
+.touch-btn {
+  min-width: 64px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.2);
+  border: 2px solid rgba(124, 58, 237, 0.4);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.touch-btn:active {
+  background: rgba(124, 58, 237, 0.5);
+  transform: scale(0.95);
+}
+
+/* Card glow effects */
+.card-arcade {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, #13131f 0%, #1f0e0e 100%);
+}
+.card-arcade:hover {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.3), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.card-puzzle {
+  border-color: rgba(124, 58, 237, 0.3);
+  background: linear-gradient(135deg, #13131f 0%, #120e1f 100%);
+}
+.card-puzzle:hover {
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.3), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(124, 58, 237, 0.7);
+}
+
+.card-action {
+  border-color: rgba(6, 182, 212, 0.3);
+  background: linear-gradient(135deg, #13131f 0%, #0e1a1f 100%);
+}
+.card-action:hover {
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.3), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(6, 182, 212, 0.7);
+}
+
+.card-educational {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: linear-gradient(135deg, #13131f 0%, #0e1f11 100%);
+}
+.card-educational:hover {
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.3), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(34, 197, 94, 0.7);
+}
+
+.card-creative {
+  border-color: rgba(236, 72, 153, 0.3);
+  background: linear-gradient(135deg, #13131f 0%, #21101d 100%);
+}
+.card-creative:hover {
+  box-shadow: 0 0 30px rgba(236, 72, 153, 0.25), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(236, 72, 153, 0.65);
+}
+
+.card-sports {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, #13131f 0%, #20180b 100%);
+}
+.card-sports:hover {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.25), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(245, 158, 11, 0.65);
+}
+
+.monetization-slot {
+  min-height: 96px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 12px);
+  overflow: hidden;
+}
+
+.monetization-slot[data-size='leaderboard'] {
+  min-height: 112px;
+}
+
+.monetization-slot[data-size='square'] {
+  min-height: 250px;
+}
+
+.monetization-slot[data-size='inline'] {
+  min-height: 140px;
+}
+
+.monetization-slot__surface {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  background: radial-gradient(circle at 20% 10%, rgba(6, 182, 212, 0.08), transparent 35%);
+}
+
+/* Flip card animation */
+.flip-card {
+  perspective: 1000px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* 2048 tile transitions */
+.tile-appear {
+  animation: tile-pop 0.15s ease-out;
+}
+
+@keyframes tile-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Mole pop animation */
+@keyframes mole-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0%); }
+}
+
+.mole-visible {
+  animation: mole-up 0.15s ease-out forwards;
+}
+
+/* Neon glow text */
+.neon-text {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Star field background */
+.star-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.2) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}

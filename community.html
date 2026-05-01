@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المجتمع - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #7c3aed; --accent-bright: #a855f7;
+    --accent-glow: rgba(124,58,237,0.4); --gold: #f59e0b; --cyan: #06b6d4;
+    --green: #10b981; --red: #ef4444; --text-primary: #f1f0ff;
+    --text-secondary: #9ca3c8; --text-muted: #4b5280; --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; }
+
+  header {
+    background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border);
+    padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:10;
+  }
+  .header-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; white-space:nowrap; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .page-title { font-size:1.1rem; font-weight:900; }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
+  .lang-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+
+  main { flex:1; max-width:1100px; margin:0 auto; width:100%; padding:2rem 1.5rem; display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start; }
+  @media(max-width:768px) { main { grid-template-columns:1fr; padding:1.25rem; } .sidebar { display:none; } }
+
+  /* POST CREATOR */
+  .post-creator { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:1.25rem; margin-bottom:1.25rem; }
+  .post-creator h3 { font-size:0.95rem; font-weight:800; margin-bottom:1rem; color:var(--text-primary); }
+  .post-creator textarea { width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; color:var(--text-primary); font-family:var(--font-ar); font-size:0.9rem; padding:0.75rem 1rem; resize:none; height:90px; outline:none; transition:border-color 0.2s; }
+  .post-creator textarea:focus { border-color:var(--accent); }
+  .creator-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-top:0.75rem; }
+  .emoji-picker { display:flex; gap:0.4rem; }
+  .emoji-picker button { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; width:34px; height:34px; cursor:pointer; font-size:1rem; transition:all 0.15s; }
+  .emoji-picker button:hover { border-color:var(--accent); transform:scale(1.1); }
+  .creator-right { display:flex; gap:0.5rem; align-items:center; }
+  .creator-right input { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); font-family:var(--font-ar); font-size:0.85rem; padding:0.4rem 0.7rem; border-radius:8px; outline:none; width:130px; transition:border-color 0.2s; }
+  .creator-right input:focus { border-color:var(--accent); }
+  #submit-btn { background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white; border:none; padding:0.45rem 1.1rem; border-radius:8px; font-family:var(--font-ar); font-weight:700; font-size:0.88rem; cursor:pointer; transition:all 0.2s; }
+  #submit-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px var(--accent-glow); }
+  #char-count { font-size:0.75rem; color:var(--text-muted); align-self:center; }
+
+  /* SEARCH */
+  .feed-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; }
+  .feed-header h2 { font-size:1rem; font-weight:800; flex:1; }
+  .search-input { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); font-family:var(--font-ar); font-size:0.85rem; padding:0.4rem 0.8rem; border-radius:8px; outline:none; width:180px; transition:border-color 0.2s; }
+  .search-input:focus { border-color:var(--accent); }
+
+  /* POSTS FEED */
+  #posts-feed { display:flex; flex-direction:column; gap:0.9rem; }
+  .post-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:1rem 1.1rem; transition:border-color 0.2s; }
+  .post-card:hover { border-color:rgba(124,58,237,0.3); }
+  .post-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem; }
+  .post-avatar-circle { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--cyan)); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+  .post-meta { flex:1; }
+  .post-author { font-size:0.85rem; font-weight:700; color:var(--accent-bright); }
+  .post-time { font-size:0.72rem; color:var(--text-muted); margin-top:0.1rem; }
+  .post-actions-row { display:flex; gap:0.5rem; align-items:center; }
+  .like-btn, .share-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); padding:0.3rem 0.65rem; border-radius:7px; font-family:var(--font-ar); font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
+  .like-btn:hover { border-color:#ef4444; color:#ef4444; }
+  .share-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .post-body { font-size:0.9rem; color:var(--text-primary); line-height:1.6; margin-bottom:0.5rem; }
+  .post-tags { display:flex; flex-wrap:wrap; gap:0.35rem; }
+  .post-tag { background:rgba(124,58,237,0.12); color:var(--accent-bright); font-size:0.72rem; padding:0.15rem 0.45rem; border-radius:4px; font-weight:600; }
+  .empty-state { text-align:center; padding:3rem 1rem; color:var(--text-muted); font-size:0.9rem; }
+  .empty-state .empty-icon { font-size:3rem; margin-bottom:0.75rem; display:block; }
+
+  /* SIDEBAR */
+  .sidebar { display:flex; flex-direction:column; gap:1.25rem; }
+  .sidebar-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:1.1rem; }
+  .sidebar-card h3 { font-size:0.9rem; font-weight:800; margin-bottom:0.9rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem; }
+  .featured-game { display:flex; flex-direction:column; gap:0.75rem; }
+  .featured-thumb { background:linear-gradient(135deg,#064e3b,#065f46); border-radius:10px; height:100px; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+  .featured-name { font-size:0.95rem; font-weight:800; }
+  .featured-desc { font-size:0.8rem; color:var(--text-secondary); line-height:1.5; }
+  .featured-play-btn { background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white; border:none; padding:0.5rem 1rem; border-radius:8px; font-family:var(--font-ar); font-weight:700; font-size:0.85rem; cursor:pointer; text-align:center; text-decoration:none; display:block; transition:all 0.2s; }
+  .featured-play-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px var(--accent-glow); }
+  .trending-tags { display:flex; flex-wrap:wrap; gap:0.5rem; }
+  .trend-tag { background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.2); color:var(--accent-bright); font-size:0.78rem; padding:0.3rem 0.6rem; border-radius:6px; cursor:pointer; transition:all 0.2s; font-family:var(--font-ar); font-weight:600; }
+  .trend-tag:hover { background:rgba(124,58,237,0.2); border-color:var(--accent); }
+  .stats-list { display:flex; flex-direction:column; gap:0.6rem; }
+  .stat-item { display:flex; align-items:center; justify-content:space-between; font-size:0.83rem; }
+  .stat-label { color:var(--text-secondary); }
+  .stat-value { font-weight:700; color:var(--accent-bright); }
+
+  /* DISQUS */
+  .disqus-section { margin-top:2rem; }
+
+  footer { background:var(--bg-card); border-top:1px solid var(--border); padding:1.25rem 1.5rem; text-align:center; font-size:0.8rem; color:var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="page-title">💬 <span id="title-lbl">المجتمع</span></span>
+    <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: Feed -->
+  <div class="feed-col">
+
+    <!-- Post Creator -->
+    <div class="post-creator">
+      <h3 id="creator-title">شارك تجربتك</h3>
+      <textarea id="post-text" maxlength="280" placeholder="شارك رأيك أو تجربتك مع الألعاب..."></textarea>
+      <div class="creator-footer">
+        <div class="emoji-picker">
+          <button onclick="pickEmoji('🎮')">🎮</button>
+          <button onclick="pickEmoji('🏆')">🏆</button>
+          <button onclick="pickEmoji('🔥')">🔥</button>
+          <button onclick="pickEmoji('😎')">😎</button>
+          <button onclick="pickEmoji('⭐')">⭐</button>
+          <button onclick="pickEmoji('💪')">💪</button>
+        </div>
+        <div class="creator-right">
+          <span id="char-count">0/280</span>
+          <input type="text" placeholder="اسمك (اختياري)" id="post-name" maxlength="20">
+          <button onclick="submitPost()" id="submit-btn">نشر</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed header + search -->
+    <div class="feed-header">
+      <h2 id="feed-title">المنشورات الأخيرة</h2>
+      <input type="text" class="search-input" id="search-posts" placeholder="ابحث في المنشورات..." oninput="filterPosts(this.value)">
+    </div>
+
+    <!-- Posts Feed -->
+    <div id="posts-feed">
+      <div class="empty-state">
+        <span class="empty-icon">🎮</span>
+        <div>كن أول من يشارك!</div>
+      </div>
+    </div>
+
+    <!-- Disqus -->
+    <div class="disqus-section">
+      <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-top:1rem;"></div>
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https://yallaplays.com/community.html';
+          this.page.identifier = 'community-page';
+        };
+        (function() {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://yallaplay.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>يرجى تفعيل JavaScript لتحميل التعليقات.</noscript>
+    </div>
+  </div>
+
+  <!-- RIGHT: Sidebar -->
+  <aside class="sidebar">
+    <!-- Game of the Week -->
+    <div class="sidebar-card">
+      <h3>🏆 <span id="gotw-title">لعبة الأسبوع</span></h3>
+      <div class="featured-game">
+        <div class="featured-thumb">🐍</div>
+        <div class="featured-name" id="gotw-name">ثعبان</div>
+        <div class="featured-desc" id="gotw-desc">لعبة الثعبان الكلاسيكية. كل ما تأكل طولت! تجنب الجدران وجسمك.</div>
+        <a href="games/snake.html" class="featured-play-btn" id="gotw-btn">▶ العب الآن</a>
+      </div>
+    </div>
+
+    <!-- Trending Topics -->
+    <div class="sidebar-card">
+      <h3>📈 <span id="trending-title">المواضيع الرائجة</span></h3>
+      <div class="trending-tags">
+        <button class="trend-tag" onclick="searchTag('#أفضل_لعبة')">#أفضل_لعبة</button>
+        <button class="trend-tag" onclick="searchTag('#تيتريس')">#تيتريس</button>
+        <button class="trend-tag" onclick="searchTag('#الثعبان')">#الثعبان</button>
+        <button class="trend-tag" onclick="searchTag('#ألعاب_بنات')">#ألعاب_بنات</button>
+        <button class="trend-tag" onclick="searchTag('#سباق')">#سباق</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="sidebar-card">
+      <h3>📊 <span id="stats-title">إحصائيات المجتمع</span></h3>
+      <div class="stats-list">
+        <div class="stat-item">
+          <span class="stat-label" id="stat-posts-lbl">إجمالي المنشورات</span>
+          <span class="stat-value" id="stat-posts-val">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label" id="stat-likes-lbl">إجمالي الإعجابات</span>
+          <span class="stat-value" id="stat-likes-val">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label" id="stat-games-lbl">ألعاب متاحة</span>
+          <span class="stat-value">16</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <span id="footer-copy">© 2025 YallaPlay · جميع الحقوق محفوظة</span>
+</footer>
+
+<script>
+// ======= i18n =======
+const i18n = {
+  ar: {
+    back: '← الرئيسية',
+    title: 'المجتمع',
+    creator_title: 'شارك تجربتك',
+    submit: 'نشر',
+    feed_title: 'المنشورات الأخيرة',
+    search_ph: 'ابحث في المنشورات...',
+    gotw_title: 'لعبة الأسبوع',
+    gotw_name: 'ثعبان',
+    gotw_desc: 'لعبة الثعبان الكلاسيكية. كل ما تأكل طولت!',
+    gotw_btn: '▶ العب الآن',
+    trending_title: 'المواضيع الرائجة',
+    stats_title: 'إحصائيات المجتمع',
+    stat_posts: 'إجمالي المنشورات',
+    stat_likes: 'إجمالي الإعجابات',
+    stat_games: 'ألعاب متاحة',
+    name_ph: 'اسمك (اختياري)',
+    text_ph: 'شارك رأيك أو تجربتك مع الألعاب...',
+    footer_copy: '© 2025 YallaPlay · جميع الحقوق محفوظة',
+    like_btn: '❤️',
+    share_btn: '📤 مشاركة',
+    unknown: 'لاعب مجهول',
+    empty: 'كن أول من يشارك!',
+  },
+  en: {
+    back: '← Home',
+    title: 'Community',
+    creator_title: 'Share your experience',
+    submit: 'Post',
+    feed_title: 'Recent Posts',
+    search_ph: 'Search posts...',
+    gotw_title: 'Game of the Week',
+    gotw_name: 'Snake',
+    gotw_desc: 'Classic snake game! Eat food to grow longer.',
+    gotw_btn: '▶ Play Now',
+    trending_title: 'Trending Topics',
+    stats_title: 'Community Stats',
+    stat_posts: 'Total Posts',
+    stat_likes: 'Total Likes',
+    stat_games: 'Available Games',
+    name_ph: 'Your name (optional)',
+    text_ph: 'Share your thoughts about games...',
+    footer_copy: '© 2025 YallaPlay · All Rights Reserved',
+    like_btn: '❤️',
+    share_btn: '📤 Share',
+    unknown: 'Anonymous',
+    empty: 'Be the first to share!',
+  }
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('yallaplays_lang', lang);
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('creator-title').textContent = t.creator_title;
+  document.getElementById('submit-btn').textContent = t.submit;
+  document.getElementById('feed-title').textContent = t.feed_title;
+  document.getElementById('search-posts').placeholder = t.search_ph;
+  document.getElementById('gotw-title').textContent = t.gotw_title;
+  document.getElementById('gotw-name').textContent = t.gotw_name;
+  document.getElementById('gotw-desc').textContent = t.gotw_desc;
+  document.getElementById('gotw-btn').textContent = t.gotw_btn;
+  document.getElementById('trending-title').textContent = t.trending_title;
+  document.getElementById('stats-title').textContent = t.stats_title;
+  document.getElementById('stat-posts-lbl').textContent = t.stat_posts;
+  document.getElementById('stat-likes-lbl').textContent = t.stat_likes;
+  document.getElementById('stat-games-lbl').textContent = t.stat_games;
+  document.getElementById('post-text').placeholder = t.text_ph;
+  document.getElementById('post-name').placeholder = t.name_ph;
+  document.getElementById('footer-copy').textContent = t.footer_copy;
+  document.getElementById('lang-btn').textContent = lang === 'ar' ? 'EN' : 'عر';
+  renderPosts(loadPosts());
+}
+
+function toggleLang() { applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+
+// ======= Posts =======
+function loadPosts() {
+  return JSON.parse(localStorage.getItem('yp_community_posts') || '[]');
+}
+function savePosts(posts) {
+  localStorage.setItem('yp_community_posts', JSON.stringify(posts));
+}
+
+function pickEmoji(emoji) {
+  const ta = document.getElementById('post-text');
+  ta.value += emoji;
+  updateCharCount();
+}
+
+document.getElementById('post-text').addEventListener('input', updateCharCount);
+function updateCharCount() {
+  const len = document.getElementById('post-text').value.length;
+  document.getElementById('char-count').textContent = len + '/280';
+}
+
+function extractTags(text) {
+  const matches = text.match(/#\S+/g);
+  return matches ? matches : [];
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return currentLang === 'ar' ? 'الآن' : 'Just now';
+  if (min < 60) return currentLang === 'ar' ? `منذ ${min} دقيقة` : `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return currentLang === 'ar' ? `منذ ${hr} ساعة` : `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  return currentLang === 'ar' ? `منذ ${day} يوم` : `${day}d ago`;
+}
+
+const avatarOptions = ['🎮','🏆','🔥','😎','⭐','💪','🦊','🐉','🎯','🚀'];
+
+function submitPost() {
+  const text = document.getElementById('post-text').value.trim();
+  if (!text) return;
+  const name = document.getElementById('post-name').value.trim() || (currentLang === 'ar' ? 'لاعب مجهول' : 'Anonymous');
+  const avatar = avatarOptions[Math.floor(Math.random() * avatarOptions.length)];
+  const post = {
+    id: Date.now().toString(),
+    name, text, avatar,
+    time: Date.now(),
+    likes: 0,
+    likedBy: []
+  };
+  const posts = loadPosts();
+  posts.push(post);
+  savePosts(posts);
+  document.getElementById('post-text').value = '';
+  document.getElementById('post-name').value = '';
+  updateCharCount();
+  renderPosts(posts);
+  updateStats(posts);
+}
+
+function likePost(id) {
+  const posts = loadPosts();
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  const sessionId = getSessionId();
+  if (post.likedBy && post.likedBy.includes(sessionId)) {
+    // Unlike
+    post.likes = Math.max(0, post.likes - 1);
+    post.likedBy = post.likedBy.filter(x => x !== sessionId);
+  } else {
+    post.likes = (post.likes || 0) + 1;
+    post.likedBy = post.likedBy || [];
+    post.likedBy.push(sessionId);
+  }
+  savePosts(posts);
+  renderPosts(posts);
+  updateStats(posts);
+}
+
+function sharePost(text) {
+  const shareText = text.substring(0, 100) + (text.length > 100 ? '...' : '');
+  if (navigator.share) {
+    navigator.share({ title: 'YallaPlay Community', text: shareText, url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(shareText + '\n' + window.location.href).then(() => {
+      alert(currentLang === 'ar' ? 'تم نسخ الرابط!' : 'Copied!');
+    });
+  }
+}
+
+function getSessionId() {
+  let sid = localStorage.getItem('yp_session_id');
+  if (!sid) {
+    sid = 'sess_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('yp_session_id', sid);
+  }
+  return sid;
+}
+
+let allPosts = [];
+function renderPosts(posts) {
+  allPosts = posts;
+  const feed = document.getElementById('posts-feed');
+  if (!posts || posts.length === 0) {
+    feed.innerHTML = `<div class="empty-state"><span class="empty-icon">🎮</span><div>${i18n[currentLang].empty}</div></div>`;
+    return;
+  }
+  const sorted = [...posts].reverse();
+  feed.innerHTML = sorted.map(p => renderPost(p)).join('');
+}
+
+function renderPost(p) {
+  const tags = extractTags(p.text);
+  const sessionId = getSessionId();
+  const liked = p.likedBy && p.likedBy.includes(sessionId);
+  return `
+    <div class="post-card" id="post-${p.id}">
+      <div class="post-header">
+        <div class="post-avatar-circle">${p.avatar || '🎮'}</div>
+        <div class="post-meta">
+          <div class="post-author">${escapeHtml(p.name || (currentLang === 'ar' ? 'لاعب مجهول' : 'Anonymous'))}</div>
+          <div class="post-time">${timeAgo(p.time)}</div>
+        </div>
+        <div class="post-actions-row">
+          <button onclick="likePost('${p.id}')" class="like-btn" style="${liked ? 'border-color:#ef4444;color:#ef4444' : ''}">❤️ ${p.likes || 0}</button>
+          <button onclick="sharePost(${JSON.stringify(p.text)})" class="share-btn">📤</button>
+        </div>
+      </div>
+      <div class="post-body">${escapeHtml(p.text)}</div>
+      ${tags.length ? `<div class="post-tags">${tags.map(t => `<span class="post-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+    </div>
+  `;
+}
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+function filterPosts(query) {
+  const q = query.toLowerCase();
+  const posts = loadPosts();
+  if (!q) { renderPosts(posts); return; }
+  const filtered = posts.filter(p =>
+    p.text.toLowerCase().includes(q) ||
+    (p.name && p.name.toLowerCase().includes(q))
+  );
+  renderPosts(filtered);
+}
+
+function searchTag(tag) {
+  document.getElementById('search-posts').value = tag;
+  filterPosts(tag);
+}
+
+function updateStats(posts) {
+  const totalLikes = posts.reduce((s, p) => s + (p.likes || 0), 0);
+  document.getElementById('stat-posts-val').textContent = posts.length;
+  document.getElementById('stat-likes-val').textContent = totalLikes;
+}
+
+// Init
+const initialPosts = loadPosts();
+applyLang(currentLang);
+updateStats(initialPosts);
+</script>
+
+</body>
+</html>

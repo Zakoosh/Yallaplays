@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YallaPlay - العب الآن بدون تحميل</title>
+<meta name="description" content="أكبر موقع ألعاب HTML5 عربي - العب مجاناً بدون تحميل على الموبايل والكمبيوتر">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711;
+    --bg-card: #0e0e1f;
+    --bg-elevated: #13132a;
+    --border: #1e1e3f;
+    --accent: #7c3aed;
+    --accent-bright: #a855f7;
+    --accent-glow: rgba(124, 58, 237, 0.4);
+    --gold: #f59e0b;
+    --gold-light: #fcd34d;
+    --cyan: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --text-primary: #f1f0ff;
+    --text-secondary: #9ca3c8;
+    --text-muted: #4b5280;
+    --font-ar: 'Cairo', 'Tajawal', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-ar);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Animated star background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 45% 60%, rgba(255,255,255,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 85%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 90%, rgba(255,255,255,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 35%, rgba(255,255,255,0.1) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7, 7, 17, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 1.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .logo-text {
+    font-size: 1.35rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-bright) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+  }
+
+  nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+  }
+
+  nav a.active { color: var(--accent-bright); }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.45rem 0.9rem;
+    width: 220px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-bar:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .search-bar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-ar);
+    font-size: 0.85rem;
+    width: 100%;
+    direction: rtl;
+  }
+
+  .search-bar input::placeholder { color: var(--text-muted); }
+
+  .search-icon { color: var(--text-muted); font-size: 0.9rem; }
+
+  .btn-play-now {
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 10px;
+    font-family: var(--font-ar);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    white-space: nowrap;
+  }
+
+  .btn-play-now:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px var(--accent-glow);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 4rem 2rem;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 58, 237, 0.15) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-content { }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 50px;
+    padding: 0.35rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-bright);
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 0.6s ease both;
+  }
+
+  .badge-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+    animation: fadeInDown 0.6s ease 0.1s both;
+  }
+
+  .hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent-bright), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    max-width: 480px;
+    animation: fadeInDown 0.6s ease 0.2s both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeInDown 0.6s ease 0.3s both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 12px;
+    font-family: var(--font-ar);
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    box-shadow: 0 4px 20px var(--accent-glow);
+    transition: all 0.25s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    padding: 0.8rem 1.75rem;
+    border-radius: 12px;
+    font-family: var(--font-ar);
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent-bright); }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    animation: fadeInDown 0.6s ease 0.4s both;
+  }
+
+  .stat { }
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    display: block;
+  }
+  .stat-label { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* Hero featured games */
+  .hero-games {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    animation: fadeInRight 0.7s ease 0.2s both;
+  }
+
+  .hero-game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    aspect-ratio: 4/3;
+  }
+
+  .hero-game-card:first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 16/7;
+  }
+
+  .hero-game-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+  .hero-game-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero-game-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(7,7,17,0.9) 0%, transparent 50%);
+    display: flex;
+    align-items: flex-end;
+    padding: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .hero-game-card:hover .hero-game-overlay { opacity: 1; }
+
+  .play-btn-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 48px; height: 48px;
+    background: rgba(124, 58, 237, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: all 0.25s;
+    backdrop-filter: blur(8px);
+  }
+
+  .hero-game-card:hover .play-btn-overlay {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .hero-game-info {
+    color: white;
+    position: absolute;
+    bottom: 0.8rem;
+    right: 0.8rem;
+  }
+
+  .hero-game-title { font-size: 0.82rem; font-weight: 700; }
+  .hero-game-meta { font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.1rem; }
+
+  /* Fake game thumbnails using CSS */
+  .thumb-snake { background: linear-gradient(135deg, #064e3b, #065f46); position: relative; overflow: hidden; }
+  .thumb-snake::before { content: '🐍'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%); font-size: 3rem; filter: drop-shadow(0 0 20px rgba(16,185,129,0.5)); }
+  .thumb-snake::after { content: 'SNAKE'; position: absolute; bottom: 10px; right: 12px; font-size: 0.75rem; font-weight: 900; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; }
+
+  .thumb-racing { background: linear-gradient(135deg, #1c1917, #292524); position: relative; overflow: hidden; }
+  .thumb-racing::before { content: '🏎️'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%); font-size: 2.5rem; }
+  .thumb-racing::after { content: 'RACING'; position: absolute; bottom: 10px; right: 12px; font-size: 0.75rem; font-weight: 900; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; }
+
+  .thumb-puzzle { background: linear-gradient(135deg, #1e1b4b, #312e81); position: relative; overflow: hidden; }
+  .thumb-puzzle::before { content: '🧩'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%); font-size: 2.5rem; }
+  .thumb-puzzle::after { content: 'PUZZLE'; position: absolute; bottom: 10px; right: 12px; font-size: 0.75rem; font-weight: 900; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; }
+
+  .thumb-hero { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; }
+  .thumb-hero::before { content: '🎮'; font-size: 3.5rem; filter: drop-shadow(0 0 30px rgba(124,58,237,0.7)); animation: float 3s ease-in-out infinite; }
+  .thumb-hero::after { content: 'YALLAPLAY'; font-size: 0.85rem; font-weight: 900; color: rgba(168,85,247,0.4); letter-spacing: 0.3em; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* AD BANNER */
+  .ad-banner {
+    background: linear-gradient(135deg, rgba(30,30,63,0.6), rgba(20,20,40,0.6));
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  .ad-placeholder {
+    display: inline-block;
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 3rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* CATEGORIES */
+  .categories-scroll {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2.5rem;
+    scrollbar-width: none;
+  }
+  .categories-scroll::-webkit-scrollbar { display: none; }
+
+  .cat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: var(--font-ar);
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .cat-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent-bright);
+    background: rgba(124, 58, 237, 0.08);
+  }
+
+  .cat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 4px 15px var(--accent-glow);
+  }
+
+  /* SECTION */
+  .section { margin-bottom: 3rem; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  .icon-trending { background: linear-gradient(135deg, #ef4444, #f97316); }
+  .icon-new { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+  .icon-popular { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+
+  .see-all {
+    color: var(--accent-bright);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .see-all:hover { color: var(--text-primary); }
+
+  /* GAMES GRID */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 1rem;
+  }
+
+  .game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    group: true;
+  }
+
+  .game-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(124, 58, 237, 0.5);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.15);
+  }
+
+  .game-thumb {
+    width: 100%;
+    aspect-ratio: 16/10;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-thumb-bg {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    transition: transform 0.3s;
+  }
+
+  .game-card:hover .game-thumb-bg { transform: scale(1.08); }
+
+  .game-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(7,7,17,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s;
+    backdrop-filter: blur(4px);
+  }
+
+  .game-card:hover .game-play-overlay { opacity: 1; }
+
+  .play-circle {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: scale(0.8);
+    transition: transform 0.25s;
+  }
+
+  .game-card:hover .play-circle { transform: scale(1); }
+
+  .game-info {
+    padding: 0.7rem 0.8rem 0.8rem;
+  }
+
+  .game-title {
+    font-size: 0.87rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .game-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.73rem;
+    color: var(--text-muted);
+  }
+
+  .game-cat {
+    background: rgba(124,58,237,0.12);
+    color: var(--accent-bright);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .game-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+
+  .badge-hot {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    color: white;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 10px rgba(239,68,68,0.4);
+  }
+
+  .badge-new {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    color: white;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 10px rgba(6,182,212,0.4);
+  }
+
+  .mobile-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: rgba(0,0,0,0.6);
+    color: var(--green);
+    padding: 0.15rem 0.4rem;
+    border-radius: 5px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+  }
+
+  /* TRENDING HORIZONTAL SCROLL */
+  .trending-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .trending-scroll::-webkit-scrollbar { display: none; }
+
+  .trending-card {
+    flex-shrink: 0;
+    width: 280px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .trending-card:hover {
+    border-color: rgba(124, 58, 237, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+  }
+
+  .trending-thumb {
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .trending-thumb-bg {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    transition: transform 0.3s;
+  }
+
+  .trending-card:hover .trending-thumb-bg { transform: scale(1.06); }
+
+  .trending-body {
+    padding: 0.8rem 0.9rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .trending-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .trending-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .trending-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .plays-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .btn-play-small {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.35rem 0.8rem;
+    border-radius: 7px;
+    font-family: var(--font-ar);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-play-small:hover { background: var(--accent-bright); }
+
+  /* CATEGORIES SECTION */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .cat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .cat-card:hover::before { opacity: 1; }
+  .cat-action::before { background: linear-gradient(135deg, rgba(239,68,68,0.15), transparent); }
+  .cat-racing::before { background: linear-gradient(135deg, rgba(245,158,11,0.15), transparent); }
+  .cat-puzzle::before { background: linear-gradient(135deg, rgba(124,58,237,0.15), transparent); }
+  .cat-sports::before { background: linear-gradient(135deg, rgba(16,185,129,0.15), transparent); }
+  .cat-kids::before { background: linear-gradient(135deg, rgba(236,72,153,0.15), transparent); }
+  .cat-arcade::before { background: linear-gradient(135deg, rgba(6,182,212,0.15), transparent); }
+  .cat-multi::before { background: linear-gradient(135deg, rgba(59,130,246,0.15), transparent); }
+  .cat-strategy::before { background: linear-gradient(135deg, rgba(132,204,22,0.15), transparent); }
+
+  .cat-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-3px);
+  }
+
+  .cat-emoji { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+  .cat-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+  .cat-count { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .footer-brand .logo-text { font-size: 1.5rem; }
+  .footer-tagline {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    line-height: 1.7;
+    max-width: 280px;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+
+  .social-btn {
+    width: 36px; height: 36px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .social-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+
+  .footer-col h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .footer-col a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+
+  .footer-col a:hover { color: var(--text-primary); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-games { display: none; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    nav { display: none; }
+    .search-bar { width: 160px; }
+  }
+
+  @media (max-width: 600px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .hero { padding: 2.5rem 1.25rem; }
+    .main { padding: 1.5rem 1.25rem; }
+    header { padding: 0 1.25rem; }
+    .hero h1 { font-size: 1.9rem; }
+    .games-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">🎮</div>
+      <span class="logo-text">YallaPlay</span>
+    </a>
+
+    <nav>
+      <a href="#" class="active">الرئيسية</a>
+      <a href="#">الألعاب</a>
+      <a href="#">أكشن</a>
+      <a href="#">سباقات</a>
+      <a href="#">ألغاز</a>
+      <a href="#">رياضة</a>
+      <a href="#">متعدد اللاعبين</a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="ابحث عن لعبة...">
+      </div>
+      <button class="btn-play-now">العب الآن</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        500+ لعبة مجانية متاحة الآن
+      </div>
+      <h1>
+        العب <span class="highlight">أفضل الألعاب</span><br>
+        بدون تحميل
+      </h1>
+      <p class="hero-desc">
+        موقع ألعاب HTML5 عربي سريع ومجاني. تشغيل فوري من المتصفح على الجوال والكمبيوتر، بدون تسجيل، بدون انتظار.
+      </p>
+      <div class="hero-ctas">
+        <a href="#games" class="btn-primary">🎮 ابدأ اللعب</a>
+        <a href="#categories" class="btn-secondary">📂 التصنيفات</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">500+</span>
+          <span class="stat-label">لعبة مجانية</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">2M+</span>
+          <span class="stat-label">لعبة شهرياً</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">8</span>
+          <span class="stat-label">تصنيفات</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-games">
+      <div class="hero-game-card thumb-hero">
+        <div class="play-btn-overlay">▶</div>
+        <div class="hero-game-overlay">
+          <div class="hero-game-info">
+            <div class="hero-game-title">YallaPlay Featured</div>
+            <div class="hero-game-meta">مميز اليوم</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-game-card thumb-snake">
+        <div class="play-btn-overlay">▶</div>
+        <div class="hero-game-overlay">
+          <div class="hero-game-info">
+            <div class="hero-game-title">Snake Classic</div>
+            <div class="hero-game-meta">أكشن · موبايل ✓</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-game-card thumb-racing">
+        <div class="play-btn-overlay">▶</div>
+        <div class="hero-game-overlay">
+          <div class="hero-game-info">
+            <div class="hero-game-title">Speed Racing</div>
+            <div class="hero-game-meta">سباقات · موبايل ✓</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-game-card thumb-puzzle">
+        <div class="play-btn-overlay">▶</div>
+        <div class="hero-game-overlay">
+          <div class="hero-game-info">
+            <div class="hero-game-title">Puzzle 2048</div>
+            <div class="hero-game-meta">ألغاز · موبايل ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AD TOP -->
+<div class="ad-banner">
+  <span class="ad-placeholder">📢 إعلان - 728×90 Leaderboard Ad</span>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- CATEGORIES FILTER -->
+  <div class="categories-scroll" id="categories">
+    <button class="cat-btn active">🎮 الكل</button>
+    <button class="cat-btn">💥 أكشن</button>
+    <button class="cat-btn">🏎️ سباقات</button>
+    <button class="cat-btn">🧩 ألغاز</button>
+    <button class="cat-btn">⚽ رياضة</button>
+    <button class="cat-btn">🧸 أطفال</button>
+    <button class="cat-btn">👾 أركيد</button>
+    <button class="cat-btn">👥 متعدد</button>
+    <button class="cat-btn">♟️ استراتيجية</button>
+  </div>
+
+  <!-- TRENDING -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon icon-trending">🔥</div>
+        الأكثر لعباً الآن
+      </div>
+      <a href="#" class="see-all">عرض الكل ←</a>
+    </div>
+
+    <div class="trending-scroll">
+      <!-- Card 1 -->
+      <div class="trending-card">
+        <div class="trending-thumb">
+          <div class="trending-thumb-bg" style="background: linear-gradient(135deg, #064e3b, #065f46);">🐍</div>
+          <span class="badge-hot">🔥 HOT</span>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="trending-body">
+          <div class="trending-title">Snake Classic</div>
+          <div class="trending-desc">لعبة الثعبان الكلاسيكية. كل ما تأكل طولت! تجنب الجدران وجسمك.</div>
+          <div class="trending-footer">
+            <span class="plays-count">▶ 1.2M لعبة</span>
+            <button class="btn-play-small">العب الآن</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="trending-card">
+        <div class="trending-thumb">
+          <div class="trending-thumb-bg" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">🔢</div>
+          <span class="badge-hot">🔥 HOT</span>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="trending-body">
+          <div class="trending-title">2048</div>
+          <div class="trending-desc">دمج الأرقام للوصول لـ 2048. لعبة ذكاء مسلية تحتاج تفكير!</div>
+          <div class="trending-footer">
+            <span class="plays-count">▶ 890K لعبة</span>
+            <button class="btn-play-small">العب الآن</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="trending-card">
+        <div class="trending-thumb">
+          <div class="trending-thumb-bg" style="background: linear-gradient(135deg, #1c1917, #292524);">🏎️</div>
+          <span class="badge-hot">🔥 HOT</span>
+        </div>
+        <div class="trending-body">
+          <div class="trending-title">Car Racing 3D</div>
+          <div class="trending-desc">سباق سيارات مجنون! تجاوز المنافسين وحطم الأرقام القياسية.</div>
+          <div class="trending-footer">
+            <span class="plays-count">▶ 750K لعبة</span>
+            <button class="btn-play-small">العب الآن</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="trending-card">
+        <div class="trending-thumb">
+          <div class="trending-thumb-bg" style="background: linear-gradient(135deg, #0c4a6e, #075985);">⚽</div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="trending-body">
+          <div class="trending-title">Penalty Kick</div>
+          <div class="trending-desc">ركلات الجزاء! سجّل أهداف وتحدى الحارس الآلي الذكي.</div>
+          <div class="trending-footer">
+            <span class="plays-count">▶ 620K لعبة</span>
+            <button class="btn-play-small">العب الآن</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="trending-card">
+        <div class="trending-thumb">
+          <div class="trending-thumb-bg" style="background: linear-gradient(135deg, #4c1d95, #6d28d9);">🫧</div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="trending-body">
+          <div class="trending-title">Bubble Shooter</div>
+          <div class="trending-desc">لعبة الفقاعات المسلية! فجّر الفقاعات وامسح الشاشة.</div>
+          <div class="trending-footer">
+            <span class="plays-count">▶ 580K لعبة</span>
+            <button class="btn-play-small">العب الآن</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW GAMES GRID -->
+  <section class="section" id="games">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon icon-new">✨</div>
+        ألعاب جديدة
+      </div>
+      <a href="#" class="see-all">عرض الكل ←</a>
+    </div>
+
+    <div class="games-grid">
+      <!-- 12 game cards -->
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #166534, #15803d);">🍎</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-new">NEW</span>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Fruit Ninja</div>
+          <div class="game-meta">
+            <span class="game-cat">أكشن</span>
+            <span class="game-rating">⭐ 4.8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #7c2d12, #9a3412);">🏀</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-new">NEW</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Basketball Shot</div>
+          <div class="game-meta">
+            <span class="game-cat">رياضة</span>
+            <span class="game-rating">⭐ 4.6</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e3a5f, #1e40af);">✈️</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Flappy Plane</div>
+          <div class="game-meta">
+            <span class="game-cat">أركيد</span>
+            <span class="game-rating">⭐ 4.5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">♟️</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Chess Online</div>
+          <div class="game-meta">
+            <span class="game-cat">استراتيجية</span>
+            <span class="game-rating">⭐ 4.9</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #4a044e, #701a75);">🎠</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-new">NEW</span>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Tower Stack</div>
+          <div class="game-meta">
+            <span class="game-cat">ألغاز</span>
+            <span class="game-rating">⭐ 4.7</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #0f4c2a, #166534);">🏃</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Runner Hero</div>
+          <div class="game-meta">
+            <span class="game-cat">أكشن</span>
+            <span class="game-rating">⭐ 4.4</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #042f2e, #134e4a);">🔫</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Tank Battle</div>
+          <div class="game-meta">
+            <span class="game-cat">متعدد</span>
+            <span class="game-rating">⭐ 4.6</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #431407, #7c2d12);">🎯</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-new">NEW</span>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Knife Hit</div>
+          <div class="game-meta">
+            <span class="game-cat">أكشن</span>
+            <span class="game-rating">⭐ 4.7</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e1b4b, #2e1065);">🃏</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Memory Cards</div>
+          <div class="game-meta">
+            <span class="game-cat">ألغاز</span>
+            <span class="game-rating">⭐ 4.5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #14532d, #166534);">🎾</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Ping Pong Pro</div>
+          <div class="game-meta">
+            <span class="game-cat">رياضة</span>
+            <span class="game-rating">⭐ 4.3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e3a5f, #1e3a8a);">📝</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="badge-new">NEW</span>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Word Guess</div>
+          <div class="game-meta">
+            <span class="game-cat">ألغاز</span>
+            <span class="game-rating">⭐ 4.8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #3b0764, #4a044e);">🎆</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Color Match</div>
+          <div class="game-meta">
+            <span class="game-cat">أركيد</span>
+            <span class="game-rating">⭐ 4.6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AD MID -->
+  <div style="text-align:center; margin: 2rem 0;">
+    <span class="ad-placeholder">📢 إعلان وسط الصفحة - 300×250 Rectangle Ad</span>
+  </div>
+
+  <!-- POPULAR GAMES -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon icon-popular">⭐</div>
+        الأعلى تقييماً
+      </div>
+      <a href="#" class="see-all">عرض الكل ←</a>
+    </div>
+
+    <div class="games-grid">
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #064e3b, #065f46);">🐍</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Snake Classic</div>
+          <div class="game-meta">
+            <span class="game-cat">أكشن</span>
+            <span class="game-rating">⭐ 4.9</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">🔢</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">2048</div>
+          <div class="game-meta">
+            <span class="game-cat">ألغاز</span>
+            <span class="game-rating">⭐ 4.9</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">♟️</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Chess Online</div>
+          <div class="game-meta">
+            <span class="game-cat">استراتيجية</span>
+            <span class="game-rating">⭐ 4.9</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #0c4a6e, #075985);">⚽</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Penalty Kick</div>
+          <div class="game-meta">
+            <span class="game-cat">رياضة</span>
+            <span class="game-rating">⭐ 4.8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #4c1d95, #6d28d9);">🫧</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+          <span class="mobile-badge">📱</span>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Bubble Shooter</div>
+          <div class="game-meta">
+            <span class="game-cat">أركيد</span>
+            <span class="game-rating">⭐ 4.8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb">
+          <div class="game-thumb-bg" style="background: linear-gradient(135deg, #7c2d12, #9a3412);">🏀</div>
+          <div class="game-play-overlay"><div class="play-circle">▶</div></div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Basketball Shot</div>
+          <div class="game-meta">
+            <span class="game-cat">رياضة</span>
+            <span class="game-rating">⭐ 4.8</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES SECTION -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon" style="background: linear-gradient(135deg, #0891b2, #0e7490);">📂</div>
+        التصنيفات
+      </div>
+    </div>
+
+    <div class="cat-grid">
+      <div class="cat-card cat-action">
+        <span class="cat-emoji">💥</span>
+        <div class="cat-name">أكشن</div>
+        <div class="cat-count">85 لعبة</div>
+      </div>
+      <div class="cat-card cat-racing">
+        <span class="cat-emoji">🏎️</span>
+        <div class="cat-name">سباقات</div>
+        <div class="cat-count">62 لعبة</div>
+      </div>
+      <div class="cat-card cat-puzzle">
+        <span class="cat-emoji">🧩</span>
+        <div class="cat-name">ألغاز</div>
+        <div class="cat-count">110 لعبة</div>
+      </div>
+      <div class="cat-card cat-sports">
+        <span class="cat-emoji">⚽</span>
+        <div class="cat-name">رياضة</div>
+        <div class="cat-count">74 لعبة</div>
+      </div>
+      <div class="cat-card cat-kids">
+        <span class="cat-emoji">🧸</span>
+        <div class="cat-name">أطفال</div>
+        <div class="cat-count">48 لعبة</div>
+      </div>
+      <div class="cat-card cat-arcade">
+        <span class="cat-emoji">👾</span>
+        <div class="cat-name">أركيد</div>
+        <div class="cat-count">93 لعبة</div>
+      </div>
+      <div class="cat-card cat-multi">
+        <span class="cat-emoji">👥</span>
+        <div class="cat-name">متعدد اللاعبين</div>
+        <div class="cat-count">31 لعبة</div>
+      </div>
+      <div class="cat-card cat-strategy">
+        <span class="cat-emoji">♟️</span>
+        <div class="cat-name">استراتيجية</div>
+        <div class="cat-count">55 لعبة</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="logo">
+          <div class="logo-icon">🎮</div>
+          <span class="logo-text">YallaPlay</span>
+        </a>
+        <p class="footer-tagline">موقع ألعاب HTML5 عربي مجاني. العب مئات الألعاب بدون تحميل من أي جهاز.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">𝕏</a>
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">▶</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>الألعاب</h4>
+        <ul>
+          <li><a href="#">أكشن</a></li>
+          <li><a href="#">سباقات</a></li>
+          <li><a href="#">ألغاز</a></li>
+          <li><a href="#">رياضة</a></li>
+          <li><a href="#">أطفال</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>الموقع</h4>
+        <ul>
+          <li><a href="#">عن YallaPlay</a></li>
+          <li><a href="#">تواصل معنا</a></li>
+          <li><a href="#">إضافة لعبة</a></li>
+          <li><a href="#">الشراكات</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>قانوني</h4>
+        <ul>
+          <li><a href="#">سياسة الخصوصية</a></li>
+          <li><a href="#">شروط الاستخدام</a></li>
+          <li><a href="#">سياسة الكوكيز</a></li>
+          <li><a href="#">DMCA</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2025 YallaPlay · جميع الحقوق محفوظة</span>
+      <span>🎮 ألعاب HTML5 مجانية للجميع</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Category filter buttons
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Animate cards on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'fadeInDown 0.4s ease both';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.game-card, .trending-card, .cat-card').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>

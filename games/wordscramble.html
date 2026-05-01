@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مبعثرة الحروف / Word Scramble - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#070711;--bg-card:#0e0e1f;--bg-elevated:#13132a;
+    --border:#1e1e3f;--accent:#7c3aed;--accent-bright:#a855f7;
+    --accent-glow:rgba(124,58,237,0.4);--gold:#f59e0b;--green:#10b981;
+    --red:#ef4444;--text-primary:#f1f0ff;--text-secondary:#9ca3c8;
+    --text-muted:#4b5280;--font-ar:'Cairo',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-ar);min-height:100vh;display:flex;flex-direction:column;}
+  header{background:rgba(7,7,17,0.9);border-bottom:1px solid var(--border);padding:0 1.5rem;backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;}
+  .header-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:1rem;}
+  .back-btn{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);transition:all 0.2s;}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+  .game-title{font-size:1.1rem;font-weight:900;}
+  .header-right{display:flex;gap:0.6rem;align-items:center;}
+  .score-box{background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:0.3rem 0.7rem;text-align:center;}
+  .score-val{font-size:1rem;font-weight:900;color:var(--accent-bright);display:block;}
+  .score-lbl{font-size:0.62rem;color:var(--text-muted);}
+  .lang-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);padding:0.3rem 0.6rem;border-radius:6px;font-family:var(--font-ar);font-weight:700;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
+  .lang-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+
+  main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem;gap:1.25rem;max-width:640px;margin:0 auto;width:100%;}
+
+  /* start screen */
+  .start-screen{display:flex;flex-direction:column;align-items:center;gap:1.5rem;text-align:center;padding:2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;width:100%;}
+  .start-screen h2{font-size:1.8rem;font-weight:900;}
+  .start-screen p{color:var(--text-secondary);line-height:1.8;font-size:0.93rem;}
+  .start-btn{background:linear-gradient(135deg,var(--accent),var(--accent-bright));color:#fff;border:none;padding:0.85rem 2.5rem;border-radius:12px;font-family:var(--font-ar);font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);transition:all 0.2s;}
+  .start-btn:hover{transform:translateY(-2px);}
+
+  /* stats bar */
+  .stats-bar{display:flex;gap:0.75rem;width:100%;justify-content:center;flex-wrap:wrap;}
+  .stat-pill{background:var(--bg-elevated);border:1px solid var(--border);border-radius:50px;padding:0.4rem 1rem;font-size:0.82rem;display:flex;align-items:center;gap:0.4rem;}
+  .stat-pill span{font-weight:900;color:var(--accent-bright);}
+
+  /* timer bar */
+  .timer-bar-bg{height:7px;background:var(--bg-elevated);border-radius:4px;overflow:hidden;width:100%;}
+  .timer-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#22d3ee);border-radius:4px;transition:width 0.25s linear;}
+  .timer-bar-fill.urgent{background:linear-gradient(90deg,#f97316,var(--red));}
+
+  /* word card */
+  .word-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;text-align:center;}
+  .word-number{font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;}
+  .category-badge{display:inline-block;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:var(--accent-bright);font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:50px;margin-bottom:1rem;}
+
+  /* answer slots */
+  .answer-slots{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;min-height:60px;margin-bottom:1rem;}
+  .slot{width:48px;height:52px;background:var(--bg-elevated);border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;cursor:pointer;transition:all 0.15s;position:relative;}
+  .slot.filled{border-color:var(--accent);background:rgba(124,58,237,0.12);color:var(--text-primary);}
+  .slot.filled:hover{border-color:var(--red);background:rgba(239,68,68,0.12);}
+  .slot.correct-anim{border-color:var(--green)!important;background:rgba(16,185,129,0.15)!important;animation:pop 0.3s ease;}
+  .slot.wrong-anim{animation:shake 0.4s ease;}
+  @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+  /* scrambled letters */
+  .scramble-area{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:0.5rem;}
+  .letter-tile{width:48px;height:52px;background:var(--bg-elevated);border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;cursor:pointer;transition:all 0.15s;user-select:none;}
+  .letter-tile:hover{border-color:var(--accent);background:rgba(124,58,237,0.15);transform:translateY(-3px);}
+  .letter-tile.used{opacity:0.25;cursor:default;transform:none!important;border-color:var(--border)!important;}
+  .letter-tile.hint-reveal{border-color:var(--gold);background:rgba(245,158,11,0.15);animation:pop 0.3s ease;}
+
+  /* action buttons */
+  .action-row{display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;}
+  .action-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);padding:0.5rem 1rem;border-radius:8px;font-family:var(--font-ar);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .action-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+  .action-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+  /* feedback overlay */
+  .feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-elevated);border:2px solid var(--green);border-radius:16px;padding:1.25rem 2.5rem;font-size:1.5rem;font-weight:900;color:var(--green);z-index:50;pointer-events:none;opacity:0;transition:opacity 0.3s;}
+  .feedback.wrong-fb{border-color:var(--red);color:var(--red);}
+  .feedback.show{opacity:1;}
+
+  /* result screen */
+  .result-screen{display:none;flex-direction:column;align-items:center;gap:1.25rem;text-align:center;padding:2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;width:100%;}
+  .result-screen.show{display:flex;}
+  .result-emoji{font-size:3.5rem;}
+  .result-title{font-size:1.6rem;font-weight:900;}
+  .result-score-big{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent-bright),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .result-stats{display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;}
+  .res-stat{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1.1rem;text-align:center;}
+  .res-stat-val{font-size:1.25rem;font-weight:900;display:block;}
+  .res-stat-lbl{font-size:0.7rem;color:var(--text-muted);}
+  .play-again-btn{background:linear-gradient(135deg,var(--accent),var(--accent-bright));color:#fff;border:none;padding:0.8rem 2.5rem;border-radius:12px;font-family:var(--font-ar);font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);transition:all 0.2s;}
+  .play-again-btn:hover{transform:translateY(-2px);}
+
+  .share-game-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .share-game-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-title">📝 <span id="title-lbl">مبعثرة الحروف</span></span>
+    <div class="header-right">
+      <div class="score-box">
+        <span class="score-val" id="hdr-score">0</span>
+        <span class="score-lbl" id="score-lbl">النقاط</span>
+      </div>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Start -->
+  <div class="start-screen" id="start-screen">
+    <div style="font-size:3rem">📝</div>
+    <h2 id="ss-title">مبعثرة الحروف</h2>
+    <p id="ss-desc">رتّب الحروف لتكوين الكلمة الصحيحة.<br>لديك 60 ثانية لكل كلمة و5 أرواح. استخدم زر التلميح إذا احتجت مساعدة!</p>
+    <button class="start-btn" onclick="startGame()" id="ss-btn">ابدأ اللعبة 🚀</button>
+  </div>
+
+  <!-- Game -->
+  <div id="game-area" style="display:none;flex-direction:column;align-items:center;gap:1rem;width:100%;">
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-pill" id="word-counter-pill">الكلمة <span id="word-num">1</span>/10</div>
+      <div class="stat-pill">❤️ <span id="lives-display">5</span></div>
+      <div class="stat-pill">⏱ <span id="timer-display">60</span>s</div>
+    </div>
+
+    <!-- Timer bar -->
+    <div class="timer-bar-bg" style="width:100%">
+      <div class="timer-bar-fill" id="timer-fill" style="width:100%"></div>
+    </div>
+
+    <!-- Word card -->
+    <div class="word-card">
+      <div class="word-number" id="word-num-lbl">الكلمة الأولى</div>
+      <div class="category-badge" id="cat-badge">لغة</div>
+
+      <!-- Answer slots -->
+      <div class="answer-slots" id="answer-slots"></div>
+
+      <!-- Scrambled letters -->
+      <div class="scramble-area" id="scramble-area"></div>
+
+      <!-- Actions -->
+      <div class="action-row" style="margin-top:0.75rem">
+        <button class="action-btn" onclick="useHint()" id="hint-btn">💡 تلميح</button>
+        <button class="action-btn" onclick="clearAnswer()" id="clear-btn">↩ مسح</button>
+        <button class="action-btn danger" onclick="skipWord()" id="skip-btn">⏭ تخطي (-❤️)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-screen" id="result-screen">
+    <div class="result-emoji" id="res-emoji">🏆</div>
+    <div class="result-title" id="res-title">رائع!</div>
+    <div class="result-score-big" id="res-score">0</div>
+    <div class="result-stats">
+      <div class="res-stat">
+        <span class="res-stat-val" id="res-solved">0</span>
+        <span class="res-stat-lbl" id="res-solved-lbl">كلمات صحيحة</span>
+      </div>
+      <div class="res-stat">
+        <span class="res-stat-val" id="res-lives">0</span>
+        <span class="res-stat-lbl" id="res-lives-lbl">أرواح متبقية</span>
+      </div>
+      <div class="res-stat">
+        <span class="res-stat-val" id="res-best">0</span>
+        <span class="res-stat-lbl" id="res-best-lbl">أعلى نقاط</span>
+      </div>
+    </div>
+    <button class="play-again-btn" onclick="playAgain()" id="play-again-btn">العب مجدداً 🔄</button>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="3333333333"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<!-- Feedback toast -->
+<div class="feedback" id="feedback">✔ صحيح!</div>
+
+<script>
+// ─── i18n ─────────────────────────────────────────────────────────────────────
+const T = {
+  ar:{
+    back:'← الرئيسية', title:'مبعثرة الحروف', score:'النقاط',
+    ssTitle:'مبعثرة الحروف',
+    ssDesc:'رتّب الحروف لتكوين الكلمة الصحيحة.\nلديك 60 ثانية لكل كلمة و5 أرواح. استخدم زر التلميح إذا احتجت مساعدة!',
+    ssBtn:'ابدأ اللعبة 🚀',
+    wordOf:'الكلمة {n}/10', hint:'💡 تلميح', clear:'↩ مسح', skip:'⏭ تخطي (-❤️)',
+    correct:'✔ صحيح!', wrong:'✘ خطأ!', timesUp:'⏰ انتهى الوقت!',
+    solved:'كلمات صحيحة', livesLeft:'أرواح متبقية', best:'أعلى نقاط', playAgain:'العب مجدداً 🔄',
+    excellent:'ممتاز! 🏆', great:'رائع! 🎉', good:'جيد! 👍', tryAgain:'حاول مجدداً 💪',
+    catLang:'لغة', catNature:'طبيعة', catAdventure:'مغامرة', catSports:'رياضة', catScience:'علوم',
+  },
+  en:{
+    back:'← Home', title:'Word Scramble', score:'Score',
+    ssTitle:'Word Scramble',
+    ssDesc:'Rearrange the letters to form the correct word.\nYou have 60 seconds per word and 5 lives. Use the hint button if you need help!',
+    ssBtn:'Start Game 🚀',
+    wordOf:'Word {n}/10', hint:'💡 Hint', clear:'↩ Clear', skip:'⏭ Skip (-❤️)',
+    correct:'✔ Correct!', wrong:'✘ Wrong!', timesUp:'⏰ Time\'s Up!',
+    solved:'Words Solved', livesLeft:'Lives Left', best:'Best Score', playAgain:'Play Again 🔄',
+    excellent:'Excellent! 🏆', great:'Great! 🎉', good:'Good! 👍', tryAgain:'Try Again 💪',
+    catLang:'Language', catNature:'Nature', catAdventure:'Adventure', catSports:'Sports', catScience:'Science',
+  }
+};
+
+const WORDS = {
+  ar:[
+    {word:'ألعاب',cat:'catLang'},{word:'مغامر',cat:'catAdventure'},{word:'سرعة',cat:'catSports'},
+    {word:'نجاح',cat:'catLang'},{word:'قوة',cat:'catAdventure'},{word:'ذكاء',cat:'catScience'},
+    {word:'فوز',cat:'catSports'},{word:'مهارة',cat:'catLang'},{word:'تحدي',cat:'catAdventure'},
+    {word:'سحر',cat:'catLang'},
+  ],
+  en:[
+    {word:'PUZZLE',cat:'catLang'},{word:'PLAYER',cat:'catSports'},{word:'ARCADE',cat:'catLang'},
+    {word:'GAMING',cat:'catAdventure'},{word:'TROPHY',cat:'catSports'},{word:'CASTLE',cat:'catAdventure'},
+    {word:'DRAGON',cat:'catAdventure'},{word:'ROCKET',cat:'catScience'},{word:'GALAXY',cat:'catScience'},
+    {word:'WIZARD',cat:'catLang'},
+  ]
+};
+
+let lang = localStorage.getItem('yallaplays_lang')||'ar';
+let gameRunning=false, wordList=[], currentWordIdx=0, score=0, lives=5, solved=0;
+let timerInterval=null, timeLeft=60, hintUsed=false;
+let answer=[], scrambled=[], usedIndices=[];
+let bestScore=parseInt(localStorage.getItem('yp_wordscramble_best')||'0');
+const TIME_PER_WORD=60;
+
+function applyLang(l){
+  lang=l;
+  localStorage.setItem('yallaplays_lang',l);
+  document.documentElement.dir=l==='ar'?'rtl':'ltr';
+  document.documentElement.lang=l;
+  const t=T[l];
+  document.getElementById('back-lbl').textContent=t.back;
+  document.getElementById('title-lbl').textContent=t.title;
+  document.getElementById('score-lbl').textContent=t.score;
+  document.getElementById('ss-title').textContent=t.ssTitle;
+  document.getElementById('ss-desc').textContent=t.ssDesc;
+  document.getElementById('ss-btn').textContent=t.ssBtn;
+  document.getElementById('hint-btn').textContent=t.hint;
+  document.getElementById('clear-btn').textContent=t.clear;
+  document.getElementById('skip-btn').textContent=t.skip;
+  document.getElementById('res-solved-lbl').textContent=t.solved;
+  document.getElementById('res-lives-lbl').textContent=t.livesLeft;
+  document.getElementById('res-best-lbl').textContent=t.best;
+  document.getElementById('play-again-btn').textContent=t.playAgain;
+  document.getElementById('lang-btn').textContent=l==='ar'?'EN':'عر';
+  if(gameRunning) renderWord();
+}
+function toggleLang(){ applyLang(lang==='ar'?'en':'ar'); }
+
+// ─── scramble util ────────────────────────────────────────────────────────────
+function scrambleWord(w){
+  const chars=[...w];
+  // ensure scrambled != original
+  let tries=0;
+  do{
+    for(let i=chars.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[chars[i],chars[j]]=[chars[j],chars[i]];}
+    tries++;
+  }while(chars.join('')===w && tries<20);
+  return chars;
+}
+
+// ─── game flow ────────────────────────────────────────────────────────────────
+function startGame(){
+  wordList=[...WORDS[lang]].sort(()=>Math.random()-0.5);
+  currentWordIdx=0; score=0; lives=5; solved=0; gameRunning=true;
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('result-screen').classList.remove('show');
+  const ga=document.getElementById('game-area');
+  ga.style.display='flex';
+  updateHeaderScore();
+  loadWord();
+}
+
+function loadWord(){
+  hintUsed=false;
+  clearInterval(timerInterval);
+  timeLeft=TIME_PER_WORD;
+  answer=[];
+  usedIndices=[];
+  const w=wordList[currentWordIdx];
+  scrambled=scrambleWord(w.word);
+  renderWord();
+  startTimer();
+}
+
+function renderWord(){
+  const w=wordList[currentWordIdx];
+  const t=T[lang];
+  // counter
+  document.getElementById('word-num').textContent=currentWordIdx+1;
+  document.getElementById('word-num-lbl').textContent=t.wordOf.replace('{n}',currentWordIdx+1);
+  document.getElementById('cat-badge').textContent=t[w.cat]||w.cat;
+
+  // answer slots
+  const slots=document.getElementById('answer-slots');
+  slots.innerHTML='';
+  [...w.word].forEach((_,i)=>{
+    const s=document.createElement('div');
+    s.className='slot'+(answer[i]?' filled':'');
+    s.textContent=answer[i]||'';
+    s.dataset.idx=i;
+    if(answer[i]) s.onclick=()=>removeFromSlot(i);
+    slots.appendChild(s);
+  });
+
+  // scramble tiles
+  const area=document.getElementById('scramble-area');
+  area.innerHTML='';
+  scrambled.forEach((ch,i)=>{
+    const t2=document.createElement('div');
+    t2.className='letter-tile'+(usedIndices.includes(i)?' used':'');
+    t2.textContent=ch;
+    t2.dataset.idx=i;
+    if(!usedIndices.includes(i)) t2.onclick=()=>addLetter(i,ch);
+    area.appendChild(t2);
+  });
+}
+
+function addLetter(idx,ch){
+  if(usedIndices.includes(idx)) return;
+  const w=wordList[currentWordIdx];
+  const nextSlot=answer.length;
+  if(nextSlot>=w.word.length) return;
+  answer[nextSlot]=ch;
+  usedIndices.push(idx);
+  renderWord();
+  if(answer.filter(Boolean).length===w.word.length) checkAnswer();
+}
+
+function removeFromSlot(slotIdx){
+  // find which scramble index was placed there
+  // we just rebuild: remove last placed? No — track placement order
+  // simpler: map answer to scrambled. We'll just remove that slot entry and un-use last added scramble idx
+  if(slotIdx>=answer.length||!answer[slotIdx]) return;
+  answer.splice(slotIdx,1);
+  usedIndices.pop();
+  renderWord();
+}
+
+function clearAnswer(){
+  answer=[];
+  usedIndices=[];
+  renderWord();
+}
+
+function checkAnswer(){
+  const w=wordList[currentWordIdx];
+  const attempt=answer.join('');
+  if(attempt===w.word){
+    // correct
+    showFeedback(T[lang].correct,false);
+    const speedBonus=Math.round((timeLeft/TIME_PER_WORD)*50);
+    score+=100+speedBonus;
+    solved++;
+    updateHeaderScore();
+    highlightSlots(true);
+    setTimeout(nextWord,900);
+  } else {
+    // wrong
+    lives--;
+    updateLives();
+    showFeedback(T[lang].wrong,true);
+    highlightSlots(false);
+    setTimeout(()=>{
+      answer=[];usedIndices=[];renderWord();
+      if(lives<=0) endGame();
+    },700);
+  }
+}
+
+function highlightSlots(correct){
+  document.querySelectorAll('.slot').forEach(s=>{
+    s.classList.add(correct?'correct-anim':'wrong-anim');
+    setTimeout(()=>s.classList.remove('correct-anim','wrong-anim'),400);
+  });
+}
+
+function nextWord(){
+  clearInterval(timerInterval);
+  currentWordIdx++;
+  if(currentWordIdx>=wordList.length||currentWordIdx>=10) { endGame(); return; }
+  loadWord();
+}
+
+function skipWord(){
+  lives--;
+  updateLives();
+  clearInterval(timerInterval);
+  if(lives<=0){endGame();return;}
+  currentWordIdx++;
+  if(currentWordIdx>=wordList.length||currentWordIdx>=10){endGame();return;}
+  loadWord();
+}
+
+function useHint(){
+  if(hintUsed) return;
+  hintUsed=true;
+  const w=wordList[currentWordIdx];
+  // reveal first letter
+  const firstChar=w.word[0];
+  const tileIdx=scrambled.findIndex((ch,i)=>ch===firstChar&&!usedIndices.includes(i));
+  if(tileIdx===-1) return;
+  const tiles=document.querySelectorAll('.letter-tile');
+  if(tiles[tileIdx]){tiles[tileIdx].classList.add('hint-reveal');}
+  // auto-place first letter
+  if(!answer[0]){
+    answer[0]=firstChar;
+    usedIndices.push(tileIdx);
+    renderWord();
+    if(answer.filter(Boolean).length===w.word.length) checkAnswer();
+  }
+}
+
+// ─── timer ────────────────────────────────────────────────────────────────────
+function startTimer(){
+  updateTimerUI();
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    updateTimerUI();
+    if(timeLeft<=0){clearInterval(timerInterval);timesUp();}
+  },1000);
+}
+
+function updateTimerUI(){
+  document.getElementById('timer-display').textContent=timeLeft;
+  const pct=(timeLeft/TIME_PER_WORD)*100;
+  const fill=document.getElementById('timer-fill');
+  fill.style.width=pct+'%';
+  fill.className='timer-bar-fill'+(timeLeft<=10?' urgent':'');
+}
+
+function timesUp(){
+  lives--;
+  updateLives();
+  showFeedback(T[lang].timesUp,true);
+  if(lives<=0){setTimeout(endGame,700);return;}
+  setTimeout(()=>{currentWordIdx++;if(currentWordIdx>=10){endGame();return;}loadWord();},800);
+}
+
+function updateLives(){
+  document.getElementById('lives-display').textContent=lives;
+}
+
+function updateHeaderScore(){
+  document.getElementById('hdr-score').textContent=score;
+}
+
+// ─── feedback toast ───────────────────────────────────────────────────────────
+let fbTimeout=null;
+function showFeedback(msg,isWrong){
+  const el=document.getElementById('feedback');
+  el.textContent=msg;
+  el.className='feedback'+(isWrong?' wrong-fb':'')+' show';
+  clearTimeout(fbTimeout);
+  fbTimeout=setTimeout(()=>el.classList.remove('show'),900);
+}
+
+// ─── end game ─────────────────────────────────────────────────────────────────
+function endGame(){
+  gameRunning=false;
+  clearInterval(timerInterval);
+  if(score>bestScore){bestScore=score;localStorage.setItem('yp_wordscramble_best',bestScore);}
+  document.getElementById('game-area').style.display='none';
+  const t=T[lang];
+  const pct=solved/10;
+  let emoji='💪',title=t.tryAgain;
+  if(pct>=0.9){emoji='🏆';title=t.excellent;}
+  else if(pct>=0.7){emoji='🎉';title=t.great;}
+  else if(pct>=0.5){emoji='👍';title=t.good;}
+  document.getElementById('res-emoji').textContent=emoji;
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-score').textContent=score+' '+t.score;
+  document.getElementById('res-solved').textContent=solved+'/10';
+  document.getElementById('res-lives').textContent=lives;
+  document.getElementById('res-best').textContent=bestScore;
+  document.getElementById('result-screen').classList.add('show');
+}
+
+function playAgain(){
+  document.getElementById('result-screen').classList.remove('show');
+  document.getElementById('start-screen').style.display='flex';
+  score=0; updateHeaderScore();
+}
+
+applyLang(lang);
+</script>
+
+<!-- Related & Comments -->
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <!-- Related games -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list">
+      <!-- filled by JS -->
+    </div>
+  </div>
+  <!-- Disqus -->
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = window.location.href;
+      this.page.identifier = window.location.pathname;
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yallaplay.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+</section>
+<script>
+// Related games
+const allGames = [
+  {href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},
+  {href:'../games/tictactoe.html',emoji:'❌',name:'إكس أو'},
+  {href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},
+  {href:'../games/2048.html',emoji:'🔢',name:'2048'},
+  {href:'../games/flappy.html',emoji:'🐦',name:'الطائر'},
+  {href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'},
+  {href:'../games/tetris.html',emoji:'🟦',name:'تيتريس'},
+  {href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},
+  {href:'../games/mathquiz.html',emoji:'🧮',name:'حساب'},
+  {href:'../games/wordscramble.html',emoji:'📝',name:'كلمات'},
+];
+const current = window.location.pathname.split('/').pop();
+const related = allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list = document.getElementById('related-games-list');
+if(list) list.innerHTML = related.map(g=>`
+  <a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:1.5rem">${g.emoji}</span>
+    <span style="font-size:0.75rem;font-weight:700">${g.name}</span>
+  </a>`).join('');
+
+function shareGame() {
+  const url = window.location.href;
+  const title = document.title;
+  if (navigator.share) {
+    navigator.share({ title, url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('.share-game-btn');
+      btn.textContent = '\u2705';
+      setTimeout(() => btn.textContent = '\ud83d\udce4', 2000);
+    });
+  }
+}
+</script>
+</body>
+</html>

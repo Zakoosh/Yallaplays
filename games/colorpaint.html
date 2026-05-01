@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التلوين الإبداعي / Color Paint - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #db2777; --accent-bright: #f472b6;
+    --accent-glow: rgba(219,39,119,0.4); --gold: #f59e0b;
+    --text-primary: #f1f0ff; --text-secondary: #9ca3c8; --text-muted: #4b5280;
+    --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border); padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:10; }
+  .header-inner { max-width:640px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .game-header-title { font-size:1.1rem; font-weight:900; }
+  .header-right { display:flex; gap:0.5rem; align-items:center; }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; }
+  .share-game-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .share-game-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; padding:1.25rem 1rem; gap:1rem; }
+
+  .paint-container { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:1rem; width:100%; max-width:480px; }
+  .template-bar { display:flex; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap; }
+  .tmpl-btn { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:0.35rem 0.7rem; cursor:pointer; font-size:1rem; transition:all 0.15s; color:var(--text-primary); font-family:var(--font-ar); font-size:0.8rem; font-weight:600; }
+  .tmpl-btn.active { border-color:var(--accent); background:rgba(219,39,119,0.15); }
+  .tmpl-btn:hover { border-color:var(--accent-bright); }
+
+  #grid-canvas { border:2px solid var(--border); border-radius:8px; display:block; cursor:crosshair; touch-action:none; }
+
+  .palette { display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin-top:0.75rem; }
+  .color-swatch { width:32px; height:32px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all 0.15s; }
+  .color-swatch:hover, .color-swatch.selected { border-color:white; transform:scale(1.15); box-shadow:0 0 8px rgba(255,255,255,0.4); }
+
+  .tools-row { display:flex; gap:0.5rem; justify-content:center; margin-top:0.75rem; flex-wrap:wrap; }
+  .tool-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.4rem 0.9rem; border-radius:8px; cursor:pointer; font-family:var(--font-ar); font-size:0.82rem; font-weight:600; transition:all 0.2s; }
+  .tool-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .tool-btn.active { background:rgba(219,39,119,0.15); border-color:var(--accent); color:var(--accent-bright); }
+
+  .completion-bar-wrap { background:var(--bg-elevated); border:1px solid var(--border); border-radius:20px; height:12px; overflow:hidden; margin-top:0.6rem; }
+  .completion-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-bright)); border-radius:20px; transition:width 0.3s; }
+  .completion-label { font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem; text-align:center; }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-header-title">🎨 <span id="title-lbl">التلوين الإبداعي</span></span>
+    <div class="header-right">
+      <button class="share-game-btn" onclick="shareGame()" title="مشاركة">📤</button>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="paint-container">
+    <div class="template-bar">
+      <button class="tmpl-btn active" onclick="loadTemplate(0)">🦋 فراشة</button>
+      <button class="tmpl-btn" onclick="loadTemplate(1)">🌸 زهرة</button>
+      <button class="tmpl-btn" onclick="loadTemplate(2)">❤️ قلب</button>
+      <button class="tmpl-btn" onclick="loadTemplate(3)">⭐ نجمة</button>
+    </div>
+
+    <canvas id="grid-canvas"></canvas>
+
+    <div class="palette" id="palette"></div>
+
+    <div class="tools-row">
+      <button class="tool-btn active" id="btn-paint" onclick="setTool('paint')" id="paint-lbl">🖌️ تلوين</button>
+      <button class="tool-btn" id="btn-erase" onclick="setTool('erase')" id="erase-lbl">🧹 محو</button>
+      <button class="tool-btn" onclick="clearAll()" id="clear-lbl">🗑️ مسح الكل</button>
+      <button class="tool-btn" onclick="saveImage()" id="save-lbl">💾 حفظ</button>
+    </div>
+
+    <div class="completion-bar-wrap">
+      <div class="completion-bar" id="completion-bar" style="width:0%"></div>
+    </div>
+    <div class="completion-label" id="completion-label">0% مكتمل</div>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list"></div>
+  </div>
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () { this.page.url = window.location.href; this.page.identifier = window.location.pathname; };
+    (function() { var d = document, s = d.createElement('script'); s.src = 'https://yallaplay.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s); })();
+  </script>
+</section>
+<script>
+const allGames=[{href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},{href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},{href:'../games/fruitcatch.html',emoji:'🍓',name:'فاكهة'},{href:'../games/balloonpop.html',emoji:'🎈',name:'بالونات'}];
+const current=window.location.pathname.split('/').pop();
+const related=allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list=document.getElementById('related-games-list');
+if(list)list.innerHTML=related.map(g=>`<a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:1.5rem">${g.emoji}</span><span style="font-size:0.75rem;font-weight:700">${g.name}</span></a>`).join('');
+</script>
+
+<script>
+const COLS = 20, ROWS = 20;
+const canvas = document.getElementById('grid-canvas');
+const ctx = canvas.getContext('2d');
+let cellSize = Math.min(20, Math.floor((Math.min(window.innerWidth - 80, 420)) / COLS));
+canvas.width = COLS * cellSize;
+canvas.height = ROWS * cellSize;
+
+const colors = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#ffffff','#6b7280','#1f2937','#be185d'];
+let selectedColor = colors[0];
+let currentTool = 'paint';
+let grid = Array.from({length:ROWS}, () => Array(COLS).fill(null));
+
+// Templates (20x20 grid definitions - simplified pixel art)
+function makeTemplate(type) {
+  const g = Array.from({length:ROWS}, () => Array(COLS).fill(null));
+  if (type === 0) { // Butterfly
+    const pts = [[9,4],[10,4],[8,5],[9,5],[10,5],[11,5],[7,6],[8,6],[9,6],[10,6],[11,6],[12,6],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],[13,7],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[7,9],[8,9],[9,9],[10,9],[11,9],[12,9],[8,10],[9,10],[10,10],[11,10],[9,11],[10,11],[9,12],[10,12],[9,13],[10,13]];
+    pts.forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#7e22ce'; });
+    // Wings highlights
+    [[6,7],[7,7],[12,7],[13,7],[6,8],[13,8]].forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#a855f7'; });
+  } else if (type === 1) { // Flower
+    const center = [[9,9],[10,9],[9,10],[10,10]];
+    center.forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#eab308'; });
+    [[9,6],[10,6],[9,7],[10,7],[9,12],[10,12],[9,13],[10,13],[6,9],[7,9],[6,10],[7,10],[12,9],[13,9],[12,10],[13,10],[7,7],[8,8],[11,8],[12,7],[7,12],[8,11],[11,11],[12,12]].forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#ec4899'; });
+    // Stem
+    [[9,14],[10,14],[9,15],[10,15],[9,16],[10,16]].forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#22c55e'; });
+  } else if (type === 2) { // Heart
+    [[7,6],[8,5],[9,4],[10,4],[11,5],[12,6],[7,7],[8,6],[9,5],[10,5],[11,6],[12,7],[6,7],[7,8],[8,7],[9,6],[10,6],[11,7],[12,8],[13,7],[6,8],[7,9],[8,8],[9,7],[10,7],[11,8],[12,9],[13,8],[7,10],[8,9],[9,8],[10,8],[11,9],[12,10],[8,11],[9,10],[10,9],[11,10],[9,11],[10,11],[9,12],[10,12]].forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#ef4444'; });
+  } else if (type === 3) { // Star
+    [[9,3],[10,3],[9,4],[10,4],[8,6],[9,6],[10,6],[11,6],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[6,9],[7,9],[8,9],[9,9],[10,9],[11,9],[12,9],[13,9],[7,10],[8,10],[9,10],[10,10],[11,10],[12,10],[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[8,12],[9,12],[10,12],[11,12],[8,13],[9,13],[10,13],[11,13],[9,14],[10,14]].forEach(([x,y]) => { if(y<ROWS&&x<COLS) g[y][x] = '#eab308'; });
+  }
+  return g;
+}
+
+let currentTemplate = 0;
+function loadTemplate(idx) {
+  currentTemplate = idx;
+  grid = makeTemplate(idx);
+  document.querySelectorAll('.tmpl-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+  drawGrid();
+  updateCompletion();
+}
+
+function drawGrid() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const color = grid[r][c];
+      ctx.fillStyle = color || '#1a1a2e';
+      ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      ctx.strokeStyle = '#0d0d1a';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
+    }
+  }
+}
+
+function getCell(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  let cx, cy;
+  if (e.touches) {
+    cx = (e.touches[0].clientX - rect.left) * scaleX;
+    cy = (e.touches[0].clientY - rect.top) * scaleY;
+  } else {
+    cx = (e.clientX - rect.left) * scaleX;
+    cy = (e.clientY - rect.top) * scaleY;
+  }
+  return { r: Math.floor(cy / cellSize), c: Math.floor(cx / cellSize) };
+}
+
+let painting = false;
+canvas.addEventListener('mousedown', e => { painting = true; paint(e); });
+canvas.addEventListener('mousemove', e => { if (painting) paint(e); });
+canvas.addEventListener('mouseup', () => painting = false);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); painting = true; paint(e); }, { passive: false });
+canvas.addEventListener('touchmove', e => { e.preventDefault(); if (painting) paint(e); }, { passive: false });
+canvas.addEventListener('touchend', () => painting = false);
+
+function paint(e) {
+  const { r, c } = getCell(e);
+  if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+  grid[r][c] = currentTool === 'erase' ? null : selectedColor;
+  drawGrid();
+  updateCompletion();
+}
+
+function setTool(t) {
+  currentTool = t;
+  document.getElementById('btn-paint').classList.toggle('active', t === 'paint');
+  document.getElementById('btn-erase').classList.toggle('active', t === 'erase');
+}
+
+function clearAll() { grid = makeTemplate(currentTemplate); drawGrid(); updateCompletion(); }
+
+function saveImage() {
+  const link = document.createElement('a');
+  link.download = 'yallaplay-colorpaint.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+function updateCompletion() {
+  let filled = 0, total = 0;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { total++; if (grid[r][c]) filled++; }
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('completion-bar').style.width = pct + '%';
+  document.getElementById('completion-label').textContent = pct + '% ' + (currentLang === 'ar' ? 'مكتمل' : 'complete');
+}
+
+// Build palette
+const palette = document.getElementById('palette');
+colors.forEach(c => {
+  const sw = document.createElement('div');
+  sw.className = 'color-swatch' + (c === selectedColor ? ' selected' : '');
+  sw.style.background = c;
+  sw.onclick = () => {
+    selectedColor = c;
+    setTool('paint');
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.style.background === c || s.style.backgroundColor === c));
+  };
+  palette.appendChild(sw);
+});
+
+// i18n
+const i18n = {
+  ar: { back:'← الرئيسية', title:'التلوين الإبداعي', paint:'🖌️ تلوين', erase:'🧹 محو', clear:'🗑️ مسح الكل', save:'💾 حفظ', related:'ألعاب مشابهة' },
+  en: { back:'← Home', title:'Color Paint', paint:'🖌️ Paint', erase:'🧹 Erase', clear:'🗑️ Clear', save:'💾 Save', related:'Similar Games' }
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('btn-paint').textContent = t.paint;
+  document.getElementById('btn-erase').textContent = t.erase;
+  document.getElementById('related-title').textContent = t.related;
+  document.getElementById('lang-btn').textContent = lang === 'ar' ? 'EN' : 'عر';
+  updateCompletion();
+}
+function toggleLang() { applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+applyLang(currentLang);
+
+function shareGame() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title: document.title, url }); }
+  else { navigator.clipboard.writeText(url).then(() => { const btn = document.querySelector('.share-game-btn'); btn.textContent = '✅'; setTimeout(() => btn.textContent = '📤', 2000); }); }
+}
+
+loadTemplate(0);
+</script>
+</body>
+</html>

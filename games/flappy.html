@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الطائر / Flappy Bird - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:#070711;--bg-card:#0e0e1f;--bg-elevated:#13132a;
+    --border:#1e1e3f;--accent:#7c3aed;--accent-bright:#a855f7;
+    --accent-glow:rgba(124,58,237,0.4);--gold:#f59e0b;--green:#10b981;
+    --red:#ef4444;--text-primary:#f1f0ff;--text-secondary:#9ca3c8;
+    --text-muted:#4b5280;--font-ar:'Cairo',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-ar);min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+  header{width:100%;background:rgba(7,7,17,0.9);border-bottom:1px solid var(--border);padding:0 1.5rem;backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;}
+  .header-inner{max-width:480px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:1rem;}
+  .back-btn{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);transition:all 0.2s;}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+  .lang-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);padding:0.3rem 0.6rem;border-radius:6px;font-family:var(--font-ar);font-weight:700;font-size:0.8rem;cursor:pointer;}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1rem;gap:0.75rem;width:100%;}
+  .scores{display:flex;gap:0.75rem;}
+  .score-box{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.4rem 1rem;text-align:center;}
+  .score-val{font-size:1.2rem;font-weight:900;color:var(--accent-bright);display:block;}
+  .score-lbl{font-size:0.65rem;color:var(--text-muted);}
+  #canvas-wrap{position:relative;cursor:pointer;}
+  canvas{border-radius:12px;border:2px solid var(--border);box-shadow:0 0 30px var(--accent-glow);display:block;}
+  #overlay{position:absolute;inset:0;background:rgba(7,7,17,0.88);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.8rem;backdrop-filter:blur(6px);}
+  #overlay h2{font-size:1.8rem;font-weight:900;}
+  .start-btn{background:linear-gradient(135deg,var(--accent),var(--accent-bright));color:white;border:none;padding:0.7rem 2rem;border-radius:10px;font-family:var(--font-ar);font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);}
+  .tap-hint{font-size:0.8rem;color:var(--text-muted);text-align:center;}
+
+  .share-game-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .share-game-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span style="font-size:1.1rem;font-weight:900;">🐦 <span id="title-lbl">الطائر</span></span>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <div class="score-box" style="padding:0.3rem 0.6rem;">
+        <span class="score-val" id="score">0</span>
+        <span class="score-lbl" id="score-lbl">النقاط</span>
+      </div>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="scores">
+    <div class="score-box"><span class="score-val" id="cur-score">0</span><span class="score-lbl" id="cur-lbl">النقاط</span></div>
+    <div class="score-box"><span class="score-val" id="best-score">0</span><span class="score-lbl" id="best-lbl">الأفضل</span></div>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+    <div id="overlay">
+      <div style="font-size:3rem">🐦</div>
+      <h2 id="overlay-title">الطائر</h2>
+      <p style="color:var(--text-secondary);font-size:0.85rem;" id="overlay-msg">اضغط للبدء</p>
+      <button class="start-btn" onclick="startGame()" id="start-btn">▶ ابدأ</button>
+      <p class="tap-hint" id="tap-hint">مسافة / نقر / لمس للتحليق</p>
+    </div>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="3333333333"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = Math.min(360, window.innerWidth - 24);
+const H = Math.min(580, window.innerHeight - 180);
+canvas.width = W; canvas.height = H;
+
+let bird, pipes, score, best, raf, running, gameOver;
+best = parseInt(localStorage.getItem('flappy_best')||'0');
+document.getElementById('best-score').textContent = best;
+
+const GRAVITY = 0.45;
+const FLAP = -8;
+const PIPE_W = 52;
+const GAP = Math.floor(H * 0.28);
+const PIPE_SPEED = 2.5;
+
+function startGame(){
+  bird = {x: W*0.22, y: H/2, vy: 0, r: 14};
+  pipes = [];
+  score = 0;
+  gameOver = false;
+  running = true;
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('cur-score').textContent = 0;
+  document.getElementById('score').textContent = 0;
+  cancelAnimationFrame(raf);
+  loop();
+}
+
+function flap(){ if(running && !gameOver){ bird.vy = FLAP; } }
+
+function spawnPipe(){
+  const minY = H * 0.12;
+  const maxY = H * 0.72 - GAP;
+  const topH = minY + Math.random() * (maxY - minY);
+  pipes.push({x: W + PIPE_W, topH, scored: false});
+}
+
+let frameCount = 0;
+function loop(){
+  raf = requestAnimationFrame(loop);
+  frameCount++;
+  ctx.clearRect(0,0,W,H);
+
+  // BG gradient
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0a0520'); grad.addColorStop(1,'#0d0b20');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  for(let i=0;i<20;i++){
+    const sx = (i*137+frameCount*0.2)%W;
+    const sy = (i*97)%H;
+    ctx.fillRect(sx,sy,1,1);
+  }
+
+  if(!gameOver){
+    // Spawn pipes
+    if(frameCount % Math.max(60, 90 - Math.floor(score/5)*3) === 0) spawnPipe();
+
+    // Update bird
+    bird.vy += GRAVITY;
+    bird.y += bird.vy;
+
+    // Update pipes
+    const speed = PIPE_SPEED + score * 0.06;
+    pipes.forEach(p => {
+      p.x -= speed;
+      if(!p.scored && p.x + PIPE_W < bird.x){ p.scored=true; score++; document.getElementById('cur-score').textContent=score; document.getElementById('score').textContent=score; }
+    });
+    pipes = pipes.filter(p => p.x > -PIPE_W - 10);
+
+    // Collision
+    if(bird.y - bird.r < 0 || bird.y + bird.r > H){
+      endGame(); return;
+    }
+    for(const p of pipes){
+      const inX = bird.x + bird.r > p.x && bird.x - bird.r < p.x + PIPE_W;
+      if(inX && (bird.y - bird.r < p.topH || bird.y + bird.r > p.topH + GAP)){ endGame(); return; }
+    }
+  }
+
+  // Draw pipes
+  pipes.forEach(p => {
+    const grad1 = ctx.createLinearGradient(p.x,0,p.x+PIPE_W,0);
+    grad1.addColorStop(0,'#22c55e'); grad1.addColorStop(1,'#16a34a');
+    ctx.fillStyle = grad1;
+    ctx.beginPath(); ctx.roundRect(p.x, 0, PIPE_W, p.topH-6, [0,0,8,8]); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(p.x-4, p.topH-16, PIPE_W+8, 16, [4,4,0,0]); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(p.x, p.topH+GAP+6, PIPE_W, H-(p.topH+GAP+6), [8,8,0,0]); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(p.x-4, p.topH+GAP, PIPE_W+8, 16, [0,0,4,4]); ctx.fill();
+  });
+
+  // Draw bird
+  ctx.save();
+  ctx.translate(bird.x, bird.y);
+  const angle = Math.min(Math.PI/4, Math.max(-Math.PI/6, bird.vy * 0.06));
+  ctx.rotate(angle);
+
+  // Body
+  ctx.fillStyle = '#facc15';
+  ctx.shadowColor = '#facc15'; ctx.shadowBlur = 12;
+  ctx.beginPath(); ctx.ellipse(0,0,bird.r,bird.r*0.85,0,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Wing
+  ctx.fillStyle = '#fde047';
+  ctx.beginPath(); ctx.ellipse(-4, bird.r*0.3, bird.r*0.55, bird.r*0.35, -0.4, 0, Math.PI*2); ctx.fill();
+
+  // Eye
+  ctx.fillStyle = 'white';
+  ctx.beginPath(); ctx.arc(bird.r*0.35, -bird.r*0.2, 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1e1b4b';
+  ctx.beginPath(); ctx.arc(bird.r*0.45, -bird.r*0.2, 3, 0, Math.PI*2); ctx.fill();
+
+  // Beak
+  ctx.fillStyle = '#f97316';
+  ctx.beginPath(); ctx.moveTo(bird.r*0.7,-3); ctx.lineTo(bird.r+6,0); ctx.lineTo(bird.r*0.7,3); ctx.closePath(); ctx.fill();
+
+  ctx.restore();
+
+  // Score
+  ctx.fillStyle='rgba(255,255,255,0.9)';
+  ctx.font=`bold ${Math.floor(W*0.1)}px Cairo,sans-serif`;
+  ctx.textAlign='center';
+  ctx.fillText(score, W/2, 50);
+}
+
+function endGame(){
+  gameOver=true; running=false;
+  if(score>best){ best=score; localStorage.setItem('flappy_best',best); document.getElementById('best-score').textContent=best; }
+  const ov = document.getElementById('overlay');
+  ov.style.display='flex';
+  document.getElementById('overlay-title').textContent = currentLang==='ar'?'انتهت اللعبة!':'Game Over!';
+  document.getElementById('overlay-msg').textContent = (currentLang==='ar'?'النقاط: ':'Score: ')+score+(currentLang==='ar'?' | الأفضل: ':' | Best: ')+best;
+  document.getElementById('start-btn').textContent = currentLang==='ar'?'▶ مرة أخرى':'▶ Play Again';
+}
+
+// Controls
+document.addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault(); if(!running)startGame(); else flap();} });
+canvas.addEventListener('click', ()=>{ if(!running)startGame(); else flap(); });
+canvas.addEventListener('touchstart', e=>{ e.preventDefault(); if(!running)startGame(); else flap(); }, {passive:false});
+document.getElementById('start-btn').addEventListener('click', e=>e.stopPropagation());
+
+// i18n
+const t={ar:{title:'الطائر',back:'← الرئيسية',score:'النقاط',best:'الأفضل',hint:'مسافة / نقر / لمس للتحليق',start:'▶ ابدأ',again:'▶ مرة أخرى',press:'اضغط للبدء'},
+  en:{title:'Flappy Bird',back:'← Home',score:'Score',best:'Best',hint:'Space / Click / Tap to flap',start:'▶ Start',again:'▶ Play Again',press:'Press to Start'}};
+let currentLang=localStorage.getItem('yallaplays_lang')||'ar';
+function applyLang(l){
+  currentLang=l; document.documentElement.dir=l==='ar'?'rtl':'ltr'; document.documentElement.lang=l;
+  document.getElementById('title-lbl').textContent=t[l].title;
+  document.getElementById('back-lbl').textContent=t[l].back;
+  document.getElementById('score-lbl').textContent=t[l].score;
+  document.getElementById('cur-lbl').textContent=t[l].score;
+  document.getElementById('best-lbl').textContent=t[l].best;
+  document.getElementById('tap-hint').textContent=t[l].hint;
+  document.getElementById('overlay-msg').textContent=t[l].press;
+  document.getElementById('start-btn').textContent=t[l].start;
+  document.getElementById('lang-btn').textContent=l==='ar'?'EN':'عر';
+}
+function toggleLang(){applyLang(currentLang==='ar'?'en':'ar');localStorage.setItem('yallaplays_lang',currentLang);}
+applyLang(currentLang);
+
+// Draw initial frame
+ctx.fillStyle='#0a0520'; ctx.fillRect(0,0,W,H);
+</script>
+
+<!-- Related & Comments -->
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <!-- Related games -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list">
+      <!-- filled by JS -->
+    </div>
+  </div>
+  <!-- Disqus -->
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = window.location.href;
+      this.page.identifier = window.location.pathname;
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yallaplay.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+</section>
+<script>
+// Related games
+const allGames = [
+  {href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},
+  {href:'../games/tictactoe.html',emoji:'❌',name:'إكس أو'},
+  {href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},
+  {href:'../games/2048.html',emoji:'🔢',name:'2048'},
+  {href:'../games/flappy.html',emoji:'🐦',name:'الطائر'},
+  {href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'},
+  {href:'../games/tetris.html',emoji:'🟦',name:'تيتريس'},
+  {href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},
+  {href:'../games/mathquiz.html',emoji:'🧮',name:'حساب'},
+  {href:'../games/wordscramble.html',emoji:'📝',name:'كلمات'},
+];
+const current = window.location.pathname.split('/').pop();
+const related = allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list = document.getElementById('related-games-list');
+if(list) list.innerHTML = related.map(g=>`
+  <a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:1.5rem">${g.emoji}</span>
+    <span style="font-size:0.75rem;font-weight:700">${g.name}</span>
+  </a>`).join('');
+
+function shareGame() {
+  const url = window.location.href;
+  const title = document.title;
+  if (navigator.share) {
+    navigator.share({ title, url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('.share-game-btn');
+      btn.textContent = '\u2705';
+      setTimeout(() => btn.textContent = '\ud83d\udce4', 2000);
+    });
+  }
+}
+</script>
+</body>
+</html>

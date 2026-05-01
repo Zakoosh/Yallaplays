@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ركلة الجزاء / Penalty Kick - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #15803d; --accent-bright: #4ade80;
+    --accent-glow: rgba(21,128,61,0.5); --gold: #f59e0b;
+    --text-primary: #f1f0ff; --text-secondary: #9ca3c8; --text-muted: #4b5280;
+    --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border); padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:10; }
+  .header-inner { max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .game-header-title { font-size:1.1rem; font-weight:900; }
+  .score-display { display:flex; gap:0.75rem; align-items:center; }
+  .score-box { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.7rem; text-align:center; }
+  .score-val { font-size:1rem; font-weight:900; color:var(--accent-bright); display:block; }
+  .score-lbl { font-size:0.65rem; color:var(--text-muted); }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; }
+  .share-game-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .share-game-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; padding:1.25rem 1rem; gap:1rem; }
+  #game-container { position:relative; }
+  canvas { border:2px solid var(--border); border-radius:12px; display:block; box-shadow:0 0 30px var(--accent-glow); cursor:crosshair; }
+  #overlay { position:absolute; inset:0; background:rgba(7,7,17,0.92); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; backdrop-filter:blur(8px); }
+  #overlay h2 { font-size:1.8rem; font-weight:900; }
+  .overlay-sub { font-size:0.9rem; color:var(--text-secondary); text-align:center; }
+  .start-btn { background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white; border:none; padding:0.75rem 2rem; border-radius:10px; font-family:var(--font-ar); font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px var(--accent-glow); transition:all 0.2s; }
+  .start-btn:hover { transform:translateY(-2px); }
+  .difficulty-btns { display:flex; gap:0.5rem; }
+  .diff-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); padding:0.4rem 0.9rem; border-radius:8px; cursor:pointer; font-family:var(--font-ar); font-size:0.82rem; font-weight:600; transition:all 0.2s; }
+  .diff-btn.active { border-color:var(--accent); color:var(--accent-bright); background:rgba(21,128,61,0.15); }
+  .diff-btn:hover { border-color:var(--accent-bright); }
+  .result-flash { position:absolute; top:30%; left:50%; transform:translate(-50%,-50%); font-size:4rem; font-weight:900; pointer-events:none; opacity:0; transition:opacity 0.2s; z-index:20; }
+  .penalty-info { font-size:0.85rem; color:var(--text-secondary); text-align:center; }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-header-title">⚽ <span id="title-lbl">ركلة الجزاء</span></span>
+    <div class="score-display">
+      <div class="score-box">
+        <span class="score-val" id="score">0/0</span>
+        <span class="score-lbl" id="score-lbl">أهداف</span>
+      </div>
+      <button class="share-game-btn" onclick="shareGame()" title="مشاركة">📤</button>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="game-container">
+    <canvas id="canvas"></canvas>
+    <div id="result-flash" class="result-flash"></div>
+    <div id="overlay">
+      <div style="font-size:3rem">⚽</div>
+      <h2 id="overlay-title">ركلة الجزاء</h2>
+      <div class="overlay-sub" id="overlay-msg">وجّه الكرة واضغط للركل!</div>
+      <div class="difficulty-btns">
+        <button class="diff-btn active" onclick="setDiff('easy')" id="diff-easy">سهل</button>
+        <button class="diff-btn" onclick="setDiff('medium')" id="diff-med">متوسط</button>
+        <button class="diff-btn" onclick="setDiff('hard')" id="diff-hard">صعب</button>
+      </div>
+      <button class="start-btn" id="start-btn" onclick="startRound()">▶ ابدأ</button>
+    </div>
+  </div>
+  <div class="penalty-info" id="penalty-info">حرّك الفأرة/إصبعك للتوجيه ثم اضغط للركل</div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list"></div>
+  </div>
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () { this.page.url = window.location.href; this.page.identifier = window.location.pathname; };
+    (function() { var d = document, s = d.createElement('script'); s.src = 'https://yallaplay.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s); })();
+  </script>
+</section>
+<script>
+const allGames=[{href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},{href:'../games/carrace.html',emoji:'🏎️',name:'سباق'},{href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},{href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'}];
+const current=window.location.pathname.split('/').pop();
+const related=allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list=document.getElementById('related-games-list');
+if(list)list.innerHTML=related.map(g=>`<a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:1.5rem">${g.emoji}</span><span style="font-size:0.75rem;font-weight:700">${g.name}</span></a>`).join('');
+</script>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = Math.min(480, window.innerWidth * 0.95);
+const H = Math.min(380, window.innerHeight * 0.5);
+canvas.width = W; canvas.height = H;
+
+const TOTAL_SHOTS = 5;
+let goals, attempts, phase, ballX, ballY, ballVX, ballVY, aimX, aimY;
+let keeperX, keeperDir, keeperSpeed, animating, raf;
+let difficulty = 'easy';
+const diffSpeeds = { easy: 2, medium: 4, hard: 7 };
+
+const GOAL_LEFT = W * 0.15, GOAL_RIGHT = W * 0.85, GOAL_TOP = H * 0.12, GOAL_BOTTOM = H * 0.45;
+const GOAL_W = GOAL_RIGHT - GOAL_LEFT, GOAL_H = GOAL_BOTTOM - GOAL_TOP;
+const BALL_START_X = W/2, BALL_START_Y = H * 0.82;
+
+function setDiff(d) {
+  difficulty = d;
+  ['easy','medium','hard'].forEach(x => {
+    const id = x === 'easy' ? 'diff-easy' : x === 'medium' ? 'diff-med' : 'diff-hard';
+    document.getElementById(id).classList.toggle('active', x === d);
+  });
+}
+
+function startRound() {
+  goals = 0; attempts = 0; phase = 'aiming';
+  ballX = BALL_START_X; ballY = BALL_START_Y;
+  aimX = W/2; aimY = GOAL_TOP + GOAL_H/2;
+  keeperX = GOAL_LEFT + GOAL_W/2;
+  keeperDir = 1; keeperSpeed = diffSpeeds[difficulty];
+  animating = false;
+  document.getElementById('score').textContent = '0/0';
+  document.getElementById('overlay').style.display = 'none';
+  if (raf) cancelAnimationFrame(raf);
+  loop();
+}
+
+function loop() {
+  update();
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+function update() {
+  // Move keeper
+  keeperX += keeperDir * keeperSpeed;
+  if (keeperX > GOAL_RIGHT - 20) { keeperX = GOAL_RIGHT - 20; keeperDir = -1; }
+  if (keeperX < GOAL_LEFT + 20) { keeperX = GOAL_LEFT + 20; keeperDir = 1; }
+
+  if (animating) {
+    ballX += ballVX;
+    ballY += ballVY;
+
+    // Check if ball reached goal line
+    if (ballY < GOAL_BOTTOM + 20) {
+      const isGoal = ballX > GOAL_LEFT + 12 && ballX < GOAL_RIGHT - 12 && ballY < GOAL_BOTTOM && ballY > GOAL_TOP - 30;
+      const keeperCatch = Math.abs(ballX - keeperX) < 35 && ballY < GOAL_BOTTOM && ballY > GOAL_TOP;
+      if (isGoal && !keeperCatch) { showResult('⚽ GOAL!', true); }
+      else { showResult('❌', false); }
+    }
+  }
+}
+
+function showResult(text, scored) {
+  animating = false;
+  attempts++;
+  if (scored) goals++;
+  document.getElementById('score').textContent = goals + '/' + attempts;
+  const flash = document.getElementById('result-flash');
+  flash.textContent = text;
+  flash.style.opacity = '1';
+  setTimeout(() => { flash.style.opacity = '0'; }, 800);
+
+  if (attempts >= TOTAL_SHOTS) {
+    setTimeout(endRound, 1000);
+  } else {
+    setTimeout(() => {
+      ballX = BALL_START_X; ballY = BALL_START_Y;
+      phase = 'aiming';
+    }, 1000);
+  }
+}
+
+function endRound() {
+  document.getElementById('overlay-title').textContent = goals >= 3 ? (currentLang === 'ar' ? 'أحسنت! 🏆' : 'Great! 🏆') : (currentLang === 'ar' ? 'حاول مجدداً!' : 'Try Again!');
+  document.getElementById('overlay-msg').textContent = (currentLang === 'ar' ? 'أهدافك: ' : 'Goals: ') + goals + '/' + TOTAL_SHOTS;
+  document.getElementById('start-btn').textContent = currentLang === 'ar' ? '▶ جولة جديدة' : '▶ New Round';
+  document.getElementById('overlay').style.display = 'flex';
+}
+
+function kick(tx, ty) {
+  if (phase !== 'aiming' || animating) return;
+  animating = true;
+  phase = 'kicked';
+  const frames = 22;
+  ballVX = (tx - ballX) / frames;
+  ballVY = (ty - ballY) / frames;
+}
+
+canvas.addEventListener('mousemove', e => {
+  if (animating) return;
+  const r = canvas.getBoundingClientRect();
+  aimX = (e.clientX - r.left) * (W / r.width);
+  aimY = (e.clientY - r.top) * (H / r.height);
+});
+
+canvas.addEventListener('click', e => {
+  if (animating) return;
+  const r = canvas.getBoundingClientRect();
+  const tx = (e.clientX - r.left) * (W / r.width);
+  const ty = (e.clientY - r.top) * (H / r.height);
+  kick(tx, ty);
+});
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (animating) return;
+  const r = canvas.getBoundingClientRect();
+  aimX = (e.touches[0].clientX - r.left) * (W / r.width);
+  aimY = (e.touches[0].clientY - r.top) * (H / r.height);
+  kick(aimX, aimY);
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (animating) return;
+  const r = canvas.getBoundingClientRect();
+  aimX = (e.touches[0].clientX - r.left) * (W / r.width);
+  aimY = (e.touches[0].clientY - r.top) * (H / r.height);
+}, { passive: false });
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Pitch
+  const pitchGrad = ctx.createLinearGradient(0, 0, 0, H);
+  pitchGrad.addColorStop(0, '#0f4a0f');
+  pitchGrad.addColorStop(1, '#1a6b1a');
+  ctx.fillStyle = pitchGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grass stripes
+  for (let i = 0; i < 8; i++) {
+    ctx.fillStyle = i % 2 === 0 ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.03)';
+    ctx.fillRect(i * W/8, 0, W/8, H);
+  }
+
+  // Goal net (back)
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  for (let x = GOAL_LEFT; x <= GOAL_RIGHT; x += 20) {
+    ctx.beginPath(); ctx.moveTo(x, GOAL_TOP); ctx.lineTo(x, GOAL_BOTTOM); ctx.stroke();
+  }
+  for (let y = GOAL_TOP; y <= GOAL_BOTTOM; y += 15) {
+    ctx.beginPath(); ctx.moveTo(GOAL_LEFT, y); ctx.lineTo(GOAL_RIGHT, y); ctx.stroke();
+  }
+
+  // Goal posts
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(GOAL_LEFT, GOAL_BOTTOM);
+  ctx.lineTo(GOAL_LEFT, GOAL_TOP);
+  ctx.lineTo(GOAL_RIGHT, GOAL_TOP);
+  ctx.lineTo(GOAL_RIGHT, GOAL_BOTTOM);
+  ctx.stroke();
+
+  // Ground line
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(GOAL_LEFT, GOAL_BOTTOM); ctx.lineTo(GOAL_RIGHT, GOAL_BOTTOM); ctx.stroke();
+
+  // Penalty spot
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(W/2, BALL_START_Y - 2, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Keeper
+  ctx.font = '2rem Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('🧤', keeperX, (GOAL_TOP + GOAL_BOTTOM)/2 + 8);
+
+  // Aim arrow (while aiming)
+  if (phase === 'aiming' && !animating) {
+    ctx.strokeStyle = 'rgba(255,255,100,0.6)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    ctx.moveTo(BALL_START_X, BALL_START_Y);
+    ctx.lineTo(aimX, aimY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Aim dot
+    ctx.fillStyle = 'rgba(255,255,0,0.8)';
+    ctx.beginPath();
+    ctx.arc(aimX, aimY, 8, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Ball
+  ctx.font = '1.8rem Arial';
+  ctx.fillText('⚽', ballX, ballY + 10);
+}
+
+// i18n
+const i18n = {
+  ar: { back:'← الرئيسية', title:'ركلة الجزاء', score:'أهداف', related:'ألعاب مشابهة', info:'حرّك الفأرة/إصبعك للتوجيه ثم اضغط للركل', diff_easy:'سهل', diff_med:'متوسط', diff_hard:'صعب' },
+  en: { back:'← Home', title:'Penalty Kick', score:'Goals', related:'Similar Games', info:'Aim with mouse/touch then click to kick', diff_easy:'Easy', diff_med:'Medium', diff_hard:'Hard' }
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('score-lbl').textContent = t.score;
+  document.getElementById('overlay-title').textContent = t.title;
+  document.getElementById('related-title').textContent = t.related;
+  document.getElementById('penalty-info').textContent = t.info;
+  document.getElementById('diff-easy').textContent = t.diff_easy;
+  document.getElementById('diff-med').textContent = t.diff_med;
+  document.getElementById('diff-hard').textContent = t.diff_hard;
+  document.getElementById('lang-btn').textContent = lang === 'ar' ? 'EN' : 'عر';
+}
+function toggleLang() { applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+applyLang(currentLang);
+
+function shareGame() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title: document.title, url }); }
+  else { navigator.clipboard.writeText(url).then(() => { const btn = document.querySelector('.share-game-btn'); btn.textContent = '✅'; setTimeout(() => btn.textContent = '📤', 2000); }); }
+}
+
+draw();
+</script>
+</body>
+</html>

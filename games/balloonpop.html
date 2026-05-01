@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فرقعة البالونات / Balloon Pop - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #06b6d4; --accent-bright: #22d3ee;
+    --accent-glow: rgba(6,182,212,0.4); --gold: #f59e0b;
+    --text-primary: #f1f0ff; --text-secondary: #9ca3c8; --text-muted: #4b5280;
+    --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+  header { background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border); padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:100; }
+  .header-inner { max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .game-header-title { font-size:1.1rem; font-weight:900; }
+  .score-display { display:flex; gap:0.75rem; align-items:center; }
+  .score-box { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.7rem; text-align:center; }
+  .score-val { font-size:1rem; font-weight:900; color:var(--accent-bright); display:block; }
+  .score-lbl { font-size:0.65rem; color:var(--text-muted); }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; }
+  .share-game-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .share-game-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+
+  #game-area { flex:1; position:relative; overflow:hidden; cursor:pointer; }
+  #timer-bar-wrap { height:6px; background:var(--bg-elevated); }
+  #timer-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-bright)); width:100%; transition:width 0.5s linear; }
+
+  #overlay { position:absolute; inset:0; background:rgba(7,7,17,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; z-index:50; backdrop-filter:blur(8px); }
+  #overlay h2 { font-size:1.8rem; font-weight:900; }
+  .overlay-sub { font-size:0.9rem; color:var(--text-secondary); }
+  .start-btn { background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white; border:none; padding:0.75rem 2rem; border-radius:10px; font-family:var(--font-ar); font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px var(--accent-glow); transition:all 0.2s; }
+  .start-btn:hover { transform:translateY(-2px); }
+
+  .balloon { position:absolute; font-size:3.5rem; line-height:1; cursor:pointer; user-select:none; transition:transform 0.1s; animation:floatUp linear forwards; z-index:10; }
+  .balloon:hover { transform:scale(1.1); }
+  .balloon.golden { font-size:4rem; filter:drop-shadow(0 0 12px gold); }
+
+  @keyframes floatUp {
+    from { transform: translateY(0) rotate(var(--tilt)); }
+    to { transform: translateY(-110vh) rotate(var(--tilt)); }
+  }
+  .pop-anim { animation:pop 0.3s ease-out forwards; pointer-events:none; }
+  @keyframes pop {
+    0% { transform:scale(1); opacity:1; }
+    50% { transform:scale(1.5); opacity:0.8; }
+    100% { transform:scale(0); opacity:0; }
+  }
+  .score-popup { position:absolute; font-size:1.3rem; font-weight:900; color:#fbbf24; pointer-events:none; animation:floatScore 0.8s ease-out forwards; z-index:20; }
+  @keyframes floatScore { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-60px); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-header-title">🎈 <span id="title-lbl">فرقعة البالونات</span></span>
+    <div class="score-display">
+      <div class="score-box">
+        <span class="score-val" id="score">0</span>
+        <span class="score-lbl" id="score-lbl">النقاط</span>
+      </div>
+      <div class="score-box">
+        <span class="score-val" id="lives-display">❤️❤️❤️</span>
+        <span class="score-lbl" id="lives-lbl">حياة</span>
+      </div>
+      <button class="share-game-btn" onclick="shareGame()" title="مشاركة">📤</button>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+
+<div id="game-area">
+  <div id="overlay">
+    <div style="font-size:3rem">🎈</div>
+    <h2 id="overlay-title">فرقعة البالونات</h2>
+    <div class="overlay-sub" id="overlay-msg">اضغط على البالونات لتفقعها!</div>
+    <button class="start-btn" id="start-btn" onclick="startGame()">▶ ابدأ</button>
+  </div>
+</div>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list"></div>
+  </div>
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () { this.page.url = window.location.href; this.page.identifier = window.location.pathname; };
+    (function() { var d = document, s = d.createElement('script'); s.src = 'https://yallaplay.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s); })();
+  </script>
+</section>
+<script>
+const allGames=[{href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},{href:'../games/fruitcatch.html',emoji:'🍓',name:'فاكهة'},{href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'},{href:'../games/bubbleshooter.html',emoji:'🫧',name:'فقاعات'}];
+const current=window.location.pathname.split('/').pop();
+const related=allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list=document.getElementById('related-games-list');
+if(list)list.innerHTML=related.map(g=>`<a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:1.5rem">${g.emoji}</span><span style="font-size:0.75rem;font-weight:700">${g.name}</span></a>`).join('');
+</script>
+
+<script>
+const GAME_DURATION = 60;
+const balloonColors = ['🔴','🟠','🟡','🟢','🔵','🟣','🩷'];
+let score, lives, gameRunning, spawnTimer, countdownTimer, timeLeft, spawnInterval;
+let highScore = parseInt(localStorage.getItem('balloonpop_hs') || '0');
+const area = document.getElementById('game-area');
+
+function startGame() {
+  score = 0; lives = 3; timeLeft = GAME_DURATION; spawnInterval = 1500;
+  document.getElementById('score').textContent = 0;
+  document.getElementById('overlay').style.display = 'none';
+  // Clear old balloons
+  area.querySelectorAll('.balloon').forEach(b => b.remove());
+  gameRunning = true;
+  startSpawning();
+  startCountdown();
+}
+
+function startSpawning() {
+  spawnBalloon();
+  spawnTimer = setTimeout(function again() {
+    if (!gameRunning) return;
+    spawnBalloon();
+    spawnTimer = setTimeout(again, spawnInterval);
+  }, spawnInterval);
+}
+
+function startCountdown() {
+  updateTimerBar();
+  countdownTimer = setInterval(() => {
+    timeLeft--;
+    updateTimerBar();
+    if (timeLeft <= 30) spawnInterval = 900;
+    if (timeLeft <= 15) spawnInterval = 600;
+    if (timeLeft <= 0) { clearInterval(countdownTimer); endGame(); }
+  }, 1000);
+}
+
+function updateTimerBar() {
+  document.getElementById('timer-bar').style.width = (timeLeft / GAME_DURATION * 100) + '%';
+}
+
+function spawnBalloon() {
+  if (!gameRunning) return;
+  const balloon = document.createElement('div');
+  const isGolden = Math.random() < 0.08;
+  balloon.className = 'balloon' + (isGolden ? ' golden' : '');
+  balloon.textContent = isGolden ? '🌟' : balloonColors[Math.floor(Math.random() * balloonColors.length)];
+  const areaW = area.offsetWidth;
+  const areaH = area.offsetHeight;
+  const x = Math.random() * (areaW - 80) + 20;
+  const duration = 4 + Math.random() * 4;
+  const tilt = (Math.random() - 0.5) * 20;
+  balloon.style.left = x + 'px';
+  balloon.style.bottom = '-80px';
+  balloon.style.setProperty('--tilt', tilt + 'deg');
+  balloon.style.animationDuration = duration + 's';
+  balloon.dataset.value = isGolden ? 50 : 10;
+  balloon.addEventListener('click', () => popBalloon(balloon));
+  balloon.addEventListener('touchstart', e => { e.preventDefault(); popBalloon(balloon); }, { passive: false });
+  area.appendChild(balloon);
+
+  // Remove if escaped
+  balloon.addEventListener('animationend', () => {
+    if (balloon.parentNode && !balloon.dataset.popped) {
+      balloon.remove();
+      lives--;
+      updateLives();
+      if (lives <= 0 && gameRunning) endGame();
+    }
+  });
+}
+
+function popBalloon(balloon) {
+  if (balloon.dataset.popped) return;
+  balloon.dataset.popped = '1';
+  const pts = parseInt(balloon.dataset.value);
+  score += pts;
+  if (score > highScore) { highScore = score; localStorage.setItem('balloonpop_hs', highScore); }
+  document.getElementById('score').textContent = score;
+
+  // Score popup
+  const popup = document.createElement('div');
+  popup.className = 'score-popup';
+  popup.textContent = '+' + pts;
+  popup.style.left = balloon.style.left;
+  popup.style.top = balloon.offsetTop + 'px';
+  area.appendChild(popup);
+  setTimeout(() => popup.remove(), 900);
+
+  balloon.classList.add('pop-anim');
+  setTimeout(() => balloon.remove(), 300);
+}
+
+function updateLives() {
+  document.getElementById('lives-display').textContent = '❤️'.repeat(Math.max(0, lives));
+}
+
+function endGame() {
+  gameRunning = false;
+  clearTimeout(spawnTimer);
+  clearInterval(countdownTimer);
+  area.querySelectorAll('.balloon').forEach(b => b.remove());
+  document.getElementById('overlay-title').textContent = currentLang === 'ar' ? 'انتهت اللعبة!' : 'Game Over!';
+  document.getElementById('overlay-msg').textContent = (currentLang === 'ar' ? 'نقاطك: ' : 'Score: ') + score + (score >= highScore ? ' 🏆' : '');
+  document.getElementById('start-btn').textContent = currentLang === 'ar' ? '▶ العب مجدداً' : '▶ Play Again';
+  document.getElementById('overlay').style.display = 'flex';
+}
+
+// i18n
+const i18n = {
+  ar: { back:'← الرئيسية', title:'فرقعة البالونات', score:'النقاط', lives:'حياة', related:'ألعاب مشابهة' },
+  en: { back:'← Home', title:'Balloon Pop', score:'Score', lives:'Lives', related:'Similar Games' }
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('score-lbl').textContent = t.score;
+  document.getElementById('lives-lbl').textContent = t.lives;
+  document.getElementById('overlay-title').textContent = t.title;
+  document.getElementById('related-title').textContent = t.related;
+  document.getElementById('lang-btn').textContent = lang === 'ar' ? 'EN' : 'عر';
+}
+function toggleLang() { applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+applyLang(currentLang);
+
+function shareGame() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title: document.title, url }); }
+  else { navigator.clipboard.writeText(url).then(() => { const btn = document.querySelector('.share-game-btn'); btn.textContent = '✅'; setTimeout(() => btn.textContent = '📤', 2000); }); }
+}
+</script>
+</body>
+</html>

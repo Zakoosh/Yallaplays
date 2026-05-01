@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رامي الفقاعات / Bubble Shooter - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #070711; --bg-card: #0e0e1f; --bg-elevated: #13132a;
+    --border: #1e1e3f; --accent: #7c3aed; --accent-bright: #a855f7;
+    --accent-glow: rgba(124,58,237,0.4); --gold: #f59e0b;
+    --text-primary: #f1f0ff; --text-secondary: #9ca3c8; --text-muted: #4b5280;
+    --font-ar: 'Cairo', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg-deep); color:var(--text-primary); font-family:var(--font-ar); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:rgba(7,7,17,0.9); border-bottom:1px solid var(--border); padding:0 1.5rem; backdrop-filter:blur(20px); position:sticky; top:0; z-index:10; }
+  .header-inner { max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+  .back-btn { color:var(--text-secondary); text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; border:1px solid var(--border); transition:all 0.2s; }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  .game-header-title { font-size:1.1rem; font-weight:900; }
+  .score-display { display:flex; gap:0.75rem; align-items:center; }
+  .score-box { background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.7rem; text-align:center; }
+  .score-val { font-size:1rem; font-weight:900; color:var(--accent-bright); display:block; }
+  .score-lbl { font-size:0.65rem; color:var(--text-muted); }
+  .lang-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.6rem; border-radius:6px; font-family:var(--font-ar); font-weight:700; font-size:0.8rem; cursor:pointer; }
+  .share-game-btn { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .share-game-btn:hover { border-color:var(--accent); color:var(--accent-bright); }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; padding:1.25rem 1rem; gap:1rem; }
+  #game-container { position:relative; }
+  canvas { border:2px solid var(--border); border-radius:12px; display:block; background:#0a0a1a; box-shadow:0 0 30px var(--accent-glow); cursor:crosshair; }
+  #overlay { position:absolute; inset:0; background:rgba(7,7,17,0.92); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; backdrop-filter:blur(8px); }
+  #overlay h2 { font-size:1.8rem; font-weight:900; }
+  .overlay-sub { font-size:0.9rem; color:var(--text-secondary); text-align:center; }
+  .start-btn { background:linear-gradient(135deg,var(--accent),var(--accent-bright)); color:white; border:none; padding:0.75rem 2rem; border-radius:10px; font-family:var(--font-ar); font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px var(--accent-glow); transition:all 0.2s; }
+  .start-btn:hover { transform:translateY(-2px); }
+  .next-bubble-wrap { display:flex; align-items:center; gap:0.75rem; font-size:0.82rem; color:var(--text-secondary); }
+  #next-bubble-preview { width:32px; height:32px; border-radius:50%; border:2px solid var(--border); }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span class="game-header-title">🫧 <span id="title-lbl">رامي الفقاعات</span></span>
+    <div class="score-display">
+      <div class="score-box">
+        <span class="score-val" id="score">0</span>
+        <span class="score-lbl" id="score-lbl">النقاط</span>
+      </div>
+      <div class="score-box">
+        <span class="score-val" id="high-score">0</span>
+        <span class="score-lbl" id="best-lbl">الأفضل</span>
+      </div>
+      <button class="share-game-btn" onclick="shareGame()" title="مشاركة">📤</button>
+      <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="game-container">
+    <canvas id="canvas"></canvas>
+    <div id="overlay">
+      <div style="font-size:3rem">🫧</div>
+      <h2 id="overlay-title">رامي الفقاعات</h2>
+      <div class="overlay-sub" id="overlay-msg">طابق 3 فقاعات من نفس اللون!</div>
+      <button class="start-btn" id="start-btn" onclick="startGame()">▶ ابدأ</button>
+    </div>
+  </div>
+  <div class="next-bubble-wrap">
+    <span id="next-lbl">التالي:</span>
+    <canvas id="next-bubble-preview"></canvas>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list"></div>
+  </div>
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () { this.page.url = window.location.href; this.page.identifier = window.location.pathname; };
+    (function() { var d = document, s = d.createElement('script'); s.src = 'https://yallaplay.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s); })();
+  </script>
+</section>
+<script>
+const allGames=[{href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},{href:'../games/balloonpop.html',emoji:'🎈',name:'بالونات'},{href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},{href:'../games/fruitcatch.html',emoji:'🍓',name:'فاكهة'}];
+const current=window.location.pathname.split('/').pop();
+const related=allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list=document.getElementById('related-games-list');
+if(list)list.innerHTML=related.map(g=>`<a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:1.5rem">${g.emoji}</span><span style="font-size:0.75rem;font-weight:700">${g.name}</span></a>`).join('');
+</script>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = Math.min(360, window.innerWidth * 0.92);
+const H = Math.min(580, window.innerHeight * 0.65);
+canvas.width = W; canvas.height = H;
+
+const R = 18; // bubble radius
+const COLS = Math.floor(W / (R * 2));
+const COLORS = ['#ef4444','#3b82f6','#22c55e','#eab308','#a855f7','#f97316'];
+
+let grid, score, highScore, shots, bullet, nextColor, aimAngle, gameRunning, raf;
+highScore = parseInt(localStorage.getItem('bubbleshooter_hs') || '0');
+document.getElementById('high-score').textContent = highScore;
+
+function randColor() { return COLORS[Math.floor(Math.random() * COLORS.length)]; }
+
+function initGrid(rows) {
+  grid = [];
+  for (let r = 0; r < rows; r++) {
+    grid.push([]);
+    const cols = r % 2 === 0 ? COLS : COLS - 1;
+    for (let c = 0; c < cols; c++) {
+      grid[r].push({ color: randColor(), alive: true });
+    }
+  }
+}
+
+function startGame() {
+  score = 0; shots = 0; aimAngle = -Math.PI/2;
+  document.getElementById('score').textContent = 0;
+  initGrid(7);
+  nextColor = randColor();
+  bullet = null;
+  gameRunning = true;
+  document.getElementById('overlay').style.display = 'none';
+  if (raf) cancelAnimationFrame(raf);
+  loop();
+  drawNextBubble();
+}
+
+function loop() {
+  if (!gameRunning) return;
+  update();
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+function getBubblePos(r, c) {
+  const offsetX = r % 2 === 0 ? R : R * 2;
+  const x = offsetX + c * R * 2;
+  const y = R + r * (R * 1.73);
+  return { x, y };
+}
+
+function update() {
+  if (!bullet) return;
+  bullet.x += bullet.vx;
+  bullet.y += bullet.vy;
+
+  // Wall bounce
+  if (bullet.x - R < 0) { bullet.x = R; bullet.vx = Math.abs(bullet.vx); }
+  if (bullet.x + R > W) { bullet.x = W - R; bullet.vx = -Math.abs(bullet.vx); }
+
+  // Check collision with grid bubbles
+  let placed = false;
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[r].length; c++) {
+      if (!grid[r][c].alive) continue;
+      const pos = getBubblePos(r, c);
+      const dx = bullet.x - pos.x, dy = bullet.y - pos.y;
+      if (Math.sqrt(dx*dx + dy*dy) < R * 1.9) {
+        placeBubble(bullet);
+        placed = true;
+        break;
+      }
+    }
+    if (placed) break;
+  }
+
+  // Hit ceiling
+  if (!placed && bullet.y - R <= 0) {
+    placeBubble(bullet);
+  }
+}
+
+function placeBubble(b) {
+  // Find best grid position
+  const r = Math.max(0, Math.round((b.y - R) / (R * 1.73)));
+  const offsetX = r % 2 === 0 ? R : R * 2;
+  const c = Math.round((b.x - offsetX) / (R * 2));
+  if (r >= grid.length) { while (grid.length <= r) grid.push([]); }
+  const cols = r % 2 === 0 ? COLS : COLS - 1;
+  const cc = Math.max(0, Math.min(cols - 1, c));
+  while (grid[r].length <= cc) grid[r].push({ color: null, alive: false });
+  grid[r][cc] = { color: b.color, alive: true };
+
+  bullet = null;
+  shots++;
+
+  // Check matches
+  const matched = findMatches(r, cc, b.color);
+  if (matched.length >= 3) {
+    matched.forEach(([mr, mc]) => { grid[mr][mc].alive = false; });
+    score += matched.length * 10;
+    if (score > highScore) { highScore = score; localStorage.setItem('bubbleshooter_hs', highScore); document.getElementById('high-score').textContent = highScore; }
+    document.getElementById('score').textContent = score;
+  }
+
+  // Add row every 10 shots
+  if (shots % 10 === 0) addRow();
+
+  // Check game over (bubble reached bottom)
+  for (let r2 = 0; r2 < grid.length; r2++) {
+    const pos = getBubblePos(r2, 0);
+    if (pos.y > H - 80 && grid[r2].some(b2 => b2.alive)) { gameOver(); return; }
+  }
+
+  nextColor = randColor();
+  drawNextBubble();
+}
+
+function findMatches(startR, startC, color) {
+  const visited = new Set();
+  const queue = [[startR, startC]];
+  const found = [];
+  while (queue.length) {
+    const [r, c] = queue.shift();
+    const key = r + ',' + c;
+    if (visited.has(key)) continue;
+    visited.add(key);
+    if (!grid[r] || !grid[r][c] || !grid[r][c].alive || grid[r][c].color !== color) continue;
+    found.push([r, c]);
+    for (const [nr, nc] of getNeighbors(r, c)) { queue.push([nr, nc]); }
+  }
+  return found;
+}
+
+function getNeighbors(r, c) {
+  const even = r % 2 === 0;
+  const nb = [
+    [r-1, c], [r-1, even ? c-1 : c+1],
+    [r, c-1], [r, c+1],
+    [r+1, c], [r+1, even ? c-1 : c+1]
+  ];
+  return nb.filter(([nr, nc]) => nr >= 0 && nc >= 0 && grid[nr] && nc < grid[nr].length);
+}
+
+function addRow() {
+  const newRow = [];
+  for (let c = 0; c < COLS; c++) newRow.push({ color: randColor(), alive: true });
+  grid.unshift(newRow);
+}
+
+function gameOver() {
+  gameRunning = false;
+  document.getElementById('overlay-title').textContent = currentLang === 'ar' ? 'انتهت اللعبة!' : 'Game Over!';
+  document.getElementById('overlay-msg').textContent = (currentLang === 'ar' ? 'نقاطك: ' : 'Score: ') + score;
+  document.getElementById('start-btn').textContent = currentLang === 'ar' ? '▶ العب مجدداً' : '▶ Play Again';
+  document.getElementById('overlay').style.display = 'flex';
+}
+
+const CANNON_X = W / 2, CANNON_Y = H - 30;
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#0d0820'); bg.addColorStop(1, '#1a0030');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw grid bubbles
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[r].length; c++) {
+      if (!grid[r][c].alive) continue;
+      const pos = getBubblePos(r, c);
+      drawBubble(ctx, pos.x, pos.y, R, grid[r][c].color);
+    }
+  }
+
+  // Draw bullet
+  if (bullet) drawBubble(ctx, bullet.x, bullet.y, R, bullet.color);
+
+  // Draw aim line
+  if (!bullet) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    ctx.moveTo(CANNON_X, CANNON_Y);
+    ctx.lineTo(CANNON_X + Math.cos(aimAngle) * 80, CANNON_Y + Math.sin(aimAngle) * 80);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Cannon
+  ctx.save();
+  ctx.translate(CANNON_X, CANNON_Y);
+  ctx.rotate(aimAngle + Math.PI/2);
+  ctx.fillStyle = '#7c3aed';
+  ctx.fillRect(-10, -30, 20, 40);
+  ctx.restore();
+
+  // Current bubble on cannon
+  drawBubble(ctx, CANNON_X, CANNON_Y, R, nextColor);
+}
+
+function drawBubble(c, x, y, r, color) {
+  const g = c.createRadialGradient(x - r*0.3, y - r*0.3, r*0.1, x, y, r);
+  g.addColorStop(0, lightenColor(color, 50));
+  g.addColorStop(0.7, color);
+  g.addColorStop(1, darkenColor(color, 30));
+  c.fillStyle = g;
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = 'rgba(255,255,255,0.3)';
+  c.lineWidth = 1;
+  c.stroke();
+  // Shine
+  c.fillStyle = 'rgba(255,255,255,0.35)';
+  c.beginPath(); c.arc(x - r*0.3, y - r*0.3, r*0.25, 0, Math.PI*2); c.fill();
+}
+
+function lightenColor(hex, amt) {
+  const r = Math.min(255, parseInt(hex.slice(1,3),16)+amt);
+  const g = Math.min(255, parseInt(hex.slice(3,5),16)+amt);
+  const b = Math.min(255, parseInt(hex.slice(5,7),16)+amt);
+  return `rgb(${r},${g},${b})`;
+}
+function darkenColor(hex, amt) {
+  const r = Math.max(0, parseInt(hex.slice(1,3),16)-amt);
+  const g = Math.max(0, parseInt(hex.slice(3,5),16)-amt);
+  const b = Math.max(0, parseInt(hex.slice(5,7),16)-amt);
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawNextBubble() {
+  const nc = document.getElementById('next-bubble-preview');
+  nc.width = 32; nc.height = 32;
+  const nctx = nc.getContext('2d');
+  nctx.clearRect(0,0,32,32);
+  drawBubble(nctx, 16, 16, 13, nextColor);
+}
+
+function shoot(tx, ty) {
+  if (bullet || !gameRunning) return;
+  const angle = Math.atan2(ty - CANNON_Y, tx - CANNON_X);
+  if (angle > -0.1 && angle < Math.PI + 0.1 && angle > 0) return; // prevent shooting down
+  const speed = 10;
+  bullet = { x: CANNON_X, y: CANNON_Y, color: nextColor, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed };
+  aimAngle = angle;
+}
+
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  shoot((e.clientX - r.left) * (W/r.width), (e.clientY - r.top) * (H/r.height));
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (bullet) return;
+  const r = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (W/r.width);
+  const my = (e.clientY - r.top) * (H/r.height);
+  aimAngle = Math.atan2(my - CANNON_Y, mx - CANNON_X);
+});
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  shoot((e.touches[0].clientX - r.left) * (W/r.width), (e.touches[0].clientY - r.top) * (H/r.height));
+}, { passive: false });
+
+// i18n
+const i18n = {
+  ar: { back:'← الرئيسية', title:'رامي الفقاعات', score:'النقاط', best:'الأفضل', next:'التالي:', related:'ألعاب مشابهة' },
+  en: { back:'← Home', title:'Bubble Shooter', score:'Score', best:'Best', next:'Next:', related:'Similar Games' }
+};
+let currentLang = localStorage.getItem('yallaplays_lang') || 'ar';
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+  document.getElementById('back-lbl').textContent = t.back;
+  document.getElementById('title-lbl').textContent = t.title;
+  document.getElementById('score-lbl').textContent = t.score;
+  document.getElementById('best-lbl').textContent = t.best;
+  document.getElementById('next-lbl').textContent = t.next;
+  document.getElementById('overlay-title').textContent = t.title;
+  document.getElementById('related-title').textContent = t.related;
+  document.getElementById('lang-btn').textContent = lang === 'ar' ? 'EN' : 'عر';
+}
+function toggleLang() { applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+applyLang(currentLang);
+
+function shareGame() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title: document.title, url }); }
+  else { navigator.clipboard.writeText(url).then(() => { const btn = document.querySelector('.share-game-btn'); btn.textContent = '✅'; setTimeout(() => btn.textContent = '📤', 2000); }); }
+}
+</script>
+</body>
+</html>

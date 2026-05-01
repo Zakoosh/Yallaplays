@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إكس أو / Tic-Tac-Toe - YallaPlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:#070711;--bg-card:#0e0e1f;--bg-elevated:#13132a;
+    --border:#1e1e3f;--accent:#7c3aed;--accent-bright:#a855f7;
+    --accent-glow:rgba(124,58,237,0.4);--gold:#f59e0b;--green:#10b981;
+    --red:#ef4444;--cyan:#06b6d4;--text-primary:#f1f0ff;
+    --text-secondary:#9ca3c8;--text-muted:#4b5280;--font-ar:'Cairo',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-ar);min-height:100vh;display:flex;flex-direction:column;}
+  header{background:rgba(7,7,17,0.9);border-bottom:1px solid var(--border);padding:0 1.5rem;backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;}
+  .header-inner{max-width:500px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:1rem;}
+  .back-btn{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);transition:all 0.2s;}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+  .lang-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);padding:0.3rem 0.6rem;border-radius:6px;font-family:var(--font-ar);font-weight:700;font-size:0.8rem;cursor:pointer;}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem;gap:1.2rem;}
+  .scores{display:flex;gap:0.75rem;}
+  .score-box{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.6rem 1.2rem;text-align:center;min-width:70px;}
+  .score-box.active{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow);}
+  .score-val{font-size:1.4rem;font-weight:900;display:block;}
+  .score-lbl{font-size:0.7rem;color:var(--text-muted);}
+  .score-x .score-val{color:var(--cyan);}
+  .score-draw .score-val{color:var(--gold);}
+  .score-o .score-val{color:var(--red);}
+  .status-msg{font-size:1rem;font-weight:700;color:var(--text-secondary);min-height:1.5rem;text-align:center;}
+  #board{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:8px;background:var(--bg-elevated);padding:8px;border-radius:16px;
+    border:1px solid var(--border);width:min(360px,90vw);
+  }
+  .cell{
+    background:var(--bg-card);border-radius:10px;
+    aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(2.5rem,12vw,4rem);cursor:pointer;
+    transition:all 0.15s;border:2px solid transparent;user-select:none;
+  }
+  .cell:hover:not(.taken){background:rgba(124,58,237,0.12);border-color:var(--accent);}
+  .cell.taken{cursor:default;}
+  .cell.win-cell{background:rgba(124,58,237,0.2);border-color:var(--accent-bright);animation:winPulse 0.5s ease both;}
+  @keyframes winPulse{0%{transform:scale(0.9);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
+  .cell.x-mark{color:var(--cyan);}
+  .cell.o-mark{color:var(--red);}
+  .action-row{display:flex;gap:0.75rem;}
+  .btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);padding:0.6rem 1.5rem;border-radius:10px;font-family:var(--font-ar);font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .btn:hover{border-color:var(--accent);color:var(--accent-bright);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-bright));color:white;border:none;box-shadow:0 4px 15px var(--accent-glow);}
+  .btn-primary:hover{transform:translateY(-1px);color:white;}
+  .turn-indicator{display:flex;gap:0.5rem;align-items:center;font-size:0.9rem;}
+  .turn-mark{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+  .turn-x{background:rgba(6,182,212,0.15);color:var(--cyan);}
+  .turn-o{background:rgba(239,68,68,0.15);color:var(--red);}
+
+  .share-game-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .share-game-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="back-btn" id="back-lbl">← الرئيسية</a>
+    <span style="font-size:1.1rem;font-weight:900;">❌ <span id="title-lbl">إكس أو</span></span>
+    <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+  </div>
+</header>
+
+<main>
+  <div class="scores">
+    <div class="score-box score-x" id="box-x">
+      <span class="score-val" id="wins">0</span>
+      <span class="score-lbl" id="wins-lbl">فوزك (X)</span>
+    </div>
+    <div class="score-box score-draw">
+      <span class="score-val" id="draws">0</span>
+      <span class="score-lbl" id="draws-lbl">تعادل</span>
+    </div>
+    <div class="score-box score-o">
+      <span class="score-val" id="losses">0</span>
+      <span class="score-lbl" id="losses-lbl">فوز الذكاء</span>
+    </div>
+  </div>
+
+  <div class="turn-indicator">
+    <div class="turn-mark turn-x">✕</div>
+    <span id="status-msg">دورك — أنت X</span>
+    <div class="turn-mark turn-o">○</div>
+  </div>
+
+  <div id="board"></div>
+
+  <div class="action-row">
+    <button class="btn btn-primary" onclick="newGame()" id="new-btn">🔄 لعبة جديدة</button>
+  </div>
+</main>
+
+<div class="ad-zone" style="padding:1rem 2rem;text-align:center;border-top:1px solid #1e1e3f;background:rgba(14,14,31,0.5);">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="3333333333"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<script>
+let board, wins=0, draws=0, losses=0, gameOver;
+
+function newGame(){
+  board=Array(9).fill(null);
+  gameOver=false;
+  renderBoard();
+  setStatus(currentLang==='ar'?'دورك — أنت X':'Your turn — You are X');
+  document.querySelectorAll('.score-box').forEach(b=>b.classList.remove('active'));
+  document.getElementById('box-x').classList.add('active');
+}
+
+function renderBoard(){
+  const el=document.getElementById('board');
+  el.innerHTML='';
+  board.forEach((v,i)=>{
+    const cell=document.createElement('div');
+    cell.className='cell'+(v?' taken':'')+(v===' X'?' x-mark':v===' O'?' o-mark':'');
+    cell.textContent=v||'';
+    if(!v&&!gameOver) cell.onclick=()=>playerMove(i);
+    el.appendChild(cell);
+  });
+}
+
+function playerMove(i){
+  if(board[i]||gameOver)return;
+  board[i]=' X';
+  if(checkEnd(' X'))return;
+  renderBoard();
+  setTimeout(()=>{aiMove();},300);
+}
+
+function aiMove(){
+  const best=minimax(board,' O');
+  board[best.idx]=' O';
+  checkEnd(' O');
+}
+
+function checkEnd(mark){
+  const winner=getWinner();
+  if(winner){
+    gameOver=true;
+    highlightWin(winner.cells);
+    if(winner.mark===' X'){wins++;document.getElementById('wins').textContent=wins;setStatus(currentLang==='ar'?'🎉 فزت!':'🎉 You Win!');}
+    else{losses++;document.getElementById('losses').textContent=losses;setStatus(currentLang==='ar'?'🤖 الذكاء فاز!':'🤖 AI Wins!');}
+    return true;
+  }
+  if(!board.includes(null)){
+    gameOver=true;draws++;document.getElementById('draws').textContent=draws;
+    setStatus(currentLang==='ar'?'🤝 تعادل!':'🤝 Draw!');
+    renderBoard();return true;
+  }
+  renderBoard();
+  if(mark===' O') setStatus(currentLang==='ar'?'دورك — أنت X':'Your turn — You are X');
+  return false;
+}
+
+const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function getWinner(){
+  for(const [a,b,c] of LINES){
+    if(board[a]&&board[a]===board[b]&&board[a]===board[c])
+      return{mark:board[a],cells:[a,b,c]};
+  }
+  return null;
+}
+
+function highlightWin(cells){
+  renderBoard();
+  cells.forEach(i=>{
+    document.getElementById('board').children[i].classList.add('win-cell');
+  });
+}
+
+function minimax(b,mark){
+  const w=getWinnerForBoard(b);
+  if(w===' O')return{score:10};
+  if(w===' X')return{score:-10};
+  const empty=b.reduce((a,v,i)=>v===null?[...a,i]:a,[]);
+  if(!empty.length)return{score:0};
+  const opp=mark===' O'?' X':' O';
+  const moves=empty.map(i=>{
+    const nb=[...b];nb[i]=mark;
+    const s=minimax(nb,opp).score;
+    return{idx:i,score:s};
+  });
+  return mark===' O'?moves.reduce((a,m)=>m.score>a.score?m:a,{score:-Infinity}):moves.reduce((a,m)=>m.score<a.score?m:a,{score:Infinity});
+}
+
+function getWinnerForBoard(b){
+  for(const [a,x,c] of LINES){
+    if(b[a]&&b[a]===b[x]&&b[a]===b[c])return b[a];
+  }
+  return null;
+}
+
+function setStatus(msg){document.getElementById('status-msg').textContent=msg;}
+
+// i18n
+const t={
+  ar:{title:'إكس أو',back:'← الرئيسية',wins:'فوزك (X)',draws:'تعادل',losses:'فوز الذكاء',newgame:'🔄 لعبة جديدة',yourturn:'دورك — أنت X'},
+  en:{title:'Tic-Tac-Toe',back:'← Home',wins:'Your Wins (X)',draws:'Draws',losses:'AI Wins',newgame:'🔄 New Game',yourturn:'Your turn — You are X'}
+};
+let currentLang=localStorage.getItem('yallaplays_lang')||'ar';
+function applyLang(l){
+  currentLang=l;
+  document.documentElement.dir=l==='ar'?'rtl':'ltr';
+  document.documentElement.lang=l;
+  document.getElementById('title-lbl').textContent=t[l].title;
+  document.getElementById('back-lbl').textContent=t[l].back;
+  document.getElementById('wins-lbl').textContent=t[l].wins;
+  document.getElementById('draws-lbl').textContent=t[l].draws;
+  document.getElementById('losses-lbl').textContent=t[l].losses;
+  document.getElementById('new-btn').textContent=t[l].newgame;
+  document.getElementById('lang-btn').textContent=l==='ar'?'EN':'عر';
+  if(!gameOver)setStatus(t[l].yourturn);
+}
+function toggleLang(){applyLang(currentLang==='ar'?'en':'ar');localStorage.setItem('yallaplays_lang',currentLang);}
+applyLang(currentLang);
+newGame();
+</script>
+
+<!-- Related & Comments -->
+<section style="max-width:640px;margin:1.5rem auto;padding:0 1rem 2rem;">
+  <!-- Related games -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem;color:var(--text-primary);" id="related-title">ألعاب مشابهة</h3>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="related-games-list">
+      <!-- filled by JS -->
+    </div>
+  </div>
+  <!-- Disqus -->
+  <div id="disqus_thread" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = window.location.href;
+      this.page.identifier = window.location.pathname;
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yallaplay.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+</section>
+<script>
+// Related games
+const allGames = [
+  {href:'../games/snake.html',emoji:'🐍',name:'ثعبان'},
+  {href:'../games/tictactoe.html',emoji:'❌',name:'إكس أو'},
+  {href:'../games/memory.html',emoji:'🃏',name:'ذاكرة'},
+  {href:'../games/2048.html',emoji:'🔢',name:'2048'},
+  {href:'../games/flappy.html',emoji:'🐦',name:'الطائر'},
+  {href:'../games/whackamole.html',emoji:'🔨',name:'اضرب الخلد'},
+  {href:'../games/tetris.html',emoji:'🟦',name:'تيتريس'},
+  {href:'../games/breakout.html',emoji:'🎯',name:'تحطيم الطوب'},
+  {href:'../games/mathquiz.html',emoji:'🧮',name:'حساب'},
+  {href:'../games/wordscramble.html',emoji:'📝',name:'كلمات'},
+];
+const current = window.location.pathname.split('/').pop();
+const related = allGames.filter(g=>!g.href.includes(current)).slice(0,4);
+const list = document.getElementById('related-games-list');
+if(list) list.innerHTML = related.map(g=>`
+  <a href="${g.href}" style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;text-decoration:none;color:var(--text-primary);transition:all 0.2s;min-width:80px;text-align:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:1.5rem">${g.emoji}</span>
+    <span style="font-size:0.75rem;font-weight:700">${g.name}</span>
+  </a>`).join('');
+
+function shareGame() {
+  const url = window.location.href;
+  const title = document.title;
+  if (navigator.share) {
+    navigator.share({ title, url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('.share-game-btn');
+      btn.textContent = '\u2705';
+      setTimeout(() => btn.textContent = '\ud83d\udce4', 2000);
+    });
+  }
+}
+</script>
+</body>
+</html>
