@@ -3,8 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YallaPlay - العب الآن بدون تحميل</title>
-<meta name="description" content="أكبر موقع ألعاب HTML5 عربي - العب مجاناً بدون تحميل على الموبايل والكمبيوتر">
+<title>YallaPlay - العب الآن بدون تحميل | أكبر موقع ألعاب HTML5 عربي</title>
+<meta name="description" content="YallaPlay - أكبر موقع ألعاب HTML5 عربي مجاني. العب ثعبان، تيتريس، 2048 وأكثر من 500 لعبة بدون تحميل على الموبايل والكمبيوتر.">
+<meta name="keywords" content="العاب,ألعاب اون لاين,العاب بدون تحميل,العاب عربي,HTML5 games,free games,yallaplay,يلا بلاي">
+<meta name="author" content="YallaPlay">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://yallaplays.com/">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yallaplays.com/">
+<meta property="og:title" content="YallaPlay - العب الآن بدون تحميل">
+<meta property="og:description" content="أكبر موقع ألعاب HTML5 عربي مجاني. 500+ لعبة بدون تحميل.">
+<meta property="og:image" content="https://yallaplays.com/og-image.png">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:locale:alternate" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://yallaplays.com/">
+<meta name="twitter:title" content="YallaPlay - العب الآن بدون تحميل">
+<meta name="twitter:description" content="أكبر موقع ألعاب HTML5 عربي مجاني. 500+ لعبة بدون تحميل.">
+<meta name="twitter:image" content="https://yallaplays.com/og-image.png">
+
+<!-- PWA / Theme -->
+<meta name="theme-color" content="#7c3aed">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YallaPlay">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "YallaPlay",
+  "url": "https://yallaplays.com",
+  "description": "Free Arabic HTML5 Games Portal",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://yallaplays.com/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -1045,6 +1089,58 @@
     color: var(--text-muted);
   }
 
+  /* ─── QUICK PLAY STRIP ────────────────────────────────────── */
+  .quick-play-strip {
+    display: none; /* only shown on mobile */
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    gap: 0.6rem;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .quick-play-strip::-webkit-scrollbar { display: none; }
+  .quick-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+    flex-shrink: 0;
+    width: 62px;
+  }
+  .quick-icon {
+    width: 48px; height: 48px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .quick-game:hover .quick-icon, .quick-game:active .quick-icon {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--accent-glow);
+  }
+  .quick-name {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  @media (max-width: 768px) {
+    .quick-play-strip { display: flex; }
+  }
+
   /* ─── SCROLL HINT ─────────────────────────────────────────── */
   .hero-scroll-hint {
     position: absolute;
@@ -1687,8 +1783,12 @@
           <span class="stat-label" data-i18n="stat_plays">لعبة شهرياً</span>
         </div>
         <div class="stat">
-          <span class="stat-num">8</span>
+          <span class="stat-num">10</span>
           <span class="stat-label" data-i18n="stat_cats">تصنيفات</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="live-players">1.2K</span>
+          <span class="stat-label" data-i18n="stat_online">يلعبون الآن</span>
         </div>
       </div>
     </div>
@@ -1765,6 +1865,20 @@
     <button class="cat-btn" data-cat="strategy" data-i18n="cat_strategy">♟️ استراتيجية</button>
     <button class="cat-btn cat-girls" data-cat="girls">👧 بنات</button>
     <button class="cat-btn cat-boys" data-cat="boys">👦 أولاد</button>
+  </div>
+
+  <!-- QUICK PLAY ROW (mobile-first) -->
+  <div class="quick-play-strip" id="quick-play-strip">
+    <a href="games/snake.html" class="quick-game"><span class="quick-icon">🐍</span><span class="quick-name">ثعبان</span></a>
+    <a href="games/2048.html" class="quick-game"><span class="quick-icon">🔢</span><span class="quick-name">2048</span></a>
+    <a href="games/tetris.html" class="quick-game"><span class="quick-icon">🟦</span><span class="quick-name">تيتريس</span></a>
+    <a href="games/flappy.html" class="quick-game"><span class="quick-icon">🐦</span><span class="quick-name">الطائر</span></a>
+    <a href="games/memory.html" class="quick-game"><span class="quick-icon">🃏</span><span class="quick-name">ذاكرة</span></a>
+    <a href="games/carrace.html" class="quick-game"><span class="quick-icon">🏎️</span><span class="quick-name">سباق</span></a>
+    <a href="games/penalty.html" class="quick-game"><span class="quick-icon">⚽</span><span class="quick-name">ركلة</span></a>
+    <a href="games/breakout.html" class="quick-game"><span class="quick-icon">🎯</span><span class="quick-name">طوب</span></a>
+    <a href="games/bubbleshooter.html" class="quick-game"><span class="quick-icon">🫧</span><span class="quick-name">فقاعات</span></a>
+    <a href="games/fruitcatch.html" class="quick-game"><span class="quick-icon">🍓</span><span class="quick-name">فاكهة</span></a>
   </div>
 
   <!-- ACTIVITY TICKER -->
@@ -2469,6 +2583,7 @@
       stat_games: 'لعبة مجانية',
       stat_plays: 'لعبة شهرياً',
       stat_cats: 'تصنيفات',
+      stat_online: 'يلعبون الآن',
       hero_featured: 'مميز اليوم',
       hero_mobile_ok: 'أكشن · موبايل ✓',
       hero_puzzle_mobile: 'ألغاز · موبايل ✓',
@@ -2561,7 +2676,8 @@
       hero_cta_cat: '📂 Categories',
       stat_games: '500+ Free Games',
       stat_plays: '2M+ Monthly Plays',
-      stat_cats: '8 Categories',
+      stat_cats: '10 Categories',
+      stat_online: 'Playing Now',
       hero_featured: 'Featured Today',
       hero_mobile_ok: 'Action · Mobile ✓',
       hero_puzzle_mobile: 'Puzzles · Mobile ✓',
@@ -2942,6 +3058,19 @@
     }
     setGotd();
     window._updateGotd = setGotd;
+  })();
+
+  // ── LIVE PLAYERS COUNTER ────────────────────────────────────
+  (function livePlayers() {
+    let base = 1100 + Math.floor(Math.random() * 400);
+    function update() {
+      const delta = Math.floor((Math.random() - 0.4) * 30);
+      base = Math.max(800, Math.min(2200, base + delta));
+      const el = document.getElementById('live-players');
+      if (el) el.textContent = base >= 1000 ? (base / 1000).toFixed(1) + 'K' : base;
+    }
+    update();
+    setInterval(update, 7000);
   })();
 
   // ── NEWSLETTER SUBMIT ───────────────────────────────────────
